@@ -1,7 +1,7 @@
 mirbaseID
 =========
 
-An R library to convert identifiers between different versions of [miRBase][mirbase-site].
+An R library to convert between different versions of [miRBase][mirbase-site] identifiers.
 
 
 
