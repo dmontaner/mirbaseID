@@ -13,13 +13,5 @@ You can install it form your R session doing:
 
 ```
 library (devtools)
-install_github ("TiddlyWikiR",  username = "dmontaner")
-```
-
-mas
-
-
-```r
-library (devtools)
-install_github ("TiddlyWikiR",  username = "dmontaner")
+install_github ("mirbaseID",  username = "dmontaner")
 ```
