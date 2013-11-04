@@ -1,0 +1,12 @@
+Package: mirbaseID
+Type: Package
+Title: miRBase ID conversion.
+Version: 0.0.1
+Date: 2013-10-31
+Author: David Montaner <dmontaner@cipf.es>
+Maintainer: David Montaner <dmontaner@cipf.es>
+Description: A library to convert between different versions of miRBase identifiers.
+License: GPL-2
+LazyData: TRUE
+LazyDataCompression: xz
+Depends: R (>= 2.14)

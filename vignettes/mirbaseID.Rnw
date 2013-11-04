@@ -1,0 +1,158 @@
+%\VignetteIndexEntry{mirbaseID Vignette}
+
+% mirbaseID.Rnw
+% 2013-02-24 dmontaner@cipf.com
+% Vignette for the package mirbaseID
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, citecolor=black, filecolor=black, linkcolor=blue, urlcolor=blue} %color de los links
+
+\usepackage[a4paper, centering, left=30mm,right=30mm, top=30mm, bottom=25mm]{geometry} %twoside bindingoffset=10mm ; oneside me da problemas....
+
+\parindent 0in
+
+%\usepackage[width=60]{Sweave}  %EL nogin ES PARA QUE NO DEN PROBLEMAS LAS GRAFICAS ???
+\usepackage{Sweave}  %EL nogin ES PARA QUE NO DEN PROBLEMAS LAS GRAFICAS ???
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{The mirbaseID package}
+\author{David Montaner}
+%\date{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\maketitle
+%\date
+
+% <<echo=FALSE, results=null>>=
+% \SweaveOpts{width = 60}
+% @ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+This document shows the basic usage of the package \mbox{\textit{mirbaseID}}.
+The library contains pre-collected data form different versions of the \href{http://www.mirbase.org/}{miRBbase} database.
+The purpose of the package is to provide utilities for the quick conversion between identifiers of different 
+\href{http://www.mirbase.org/}{miRBbase} versions.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\section{Usage}
+
+The main dataset in the library is the \mbox{\texttt{mirIDmat}} matrix which you can access simply loading the package:
+
+<<mirIDmat, echo=TRUE, results=verbatim>>=
+
+
+library (mirbaseID)
+mirIDmat[1:3,]
+dim (mirIDmat)
+@ 
+
+The \mbox{\texttt{mirIDmat}} matrix relates \href{http://www.mirbase.org/}{miRBbase} IDs 
+form different versions through the \href{http://www.mirbase.org/}{miRBbase} accessions.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\bigskip
+
+
+The function \mbox{\texttt{buildVersion}} uses the information in matrix \mbox{\texttt{mirIDmat}} 
+to create a conversion vector to the desired \href{http://www.mirbase.org/}{miRBbase} version.
+%
+If we want for instance to get a conversion vector from any \href{http://www.mirbase.org/}{miRBbase} version to the 18\textsuperscript{th} we can do:
+
+<<buildVersion, echo=TRUE, results=verbatim>>=
+to18version <- buildVersion (18, verbose = FALSE)
+@ 
+
+The returned vector \textit{to18version} has, as names, all \href{http://www.mirbase.org/}{miRBbase} IDs form all versions 
+(including the 18\textsuperscript{th}). 
+The values of the vector are the IDs from \href{http://www.mirbase.org/}{miRBbase} version 18\textsuperscript{th}.
+
+<<buildVersion, echo=TRUE, results=verbatim>>=
+to18version[1:4]
+@ 
+
+And can be used to convert any ID vector to the 18\textsuperscript{th} version as follows:
+
+<<buildVersion, echo=TRUE, results=verbatim>>=
+v <- c ("hsa-let-7a*", "hsa-miR-105*", "nada")
+to18version[v]
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\bigskip
+
+For the 19\textsuperscript{th} and 20\textsuperscript{th} versions of \href{http://www.mirbase.org/}{miRBbase} 
+there are already pre-calculated vectors \mbox{\texttt{id2mir19}} and \mbox{\texttt{id2mir20}}:
+
+<<id2mir19, echo=TRUE, results=verbatim>>=
+id2mir19[1:3]
+@ 
+
+That can be used as:
+
+<<id2mir19, echo=TRUE, results=verbatim>>=
+v <- c ("hsa-let-7a*", "hsa-miR-105*", "nada")
+id2mir19[v]
+@ 
+
+there is also a vector for the latest version of \href{http://www.mirbase.org/}{miRBbase} 
+called \mbox{\texttt{id2mirLast}}.
+
+<<id2mir19, echo=TRUE, results=verbatim>>=
+v <- c ("hsa-let-7a*", "hsa-miR-105*", "nada")
+id2mirLast[v]
+@ 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bigskip
+
+There is also the a utility function to make the conversions straight froward
+
+<<idConvert, echo=TRUE, results=verbatim>>=
+conv <- c("cel-lin-4", "cel-miR-1", "mas", NA)
+idConvert (conv, mirversion = 18, verbose = FALSE)
+@ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bigskip
+
+In current version of the \mbox{\textit{mirbaseID}} package you can acces these 
+\href{http://www.mirbase.org/}{miRBbase} version.
+ 
+<<mirbVersions, echo=TRUE, results=verbatim>>=
+mirbVersions ()
+@ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\section{Download Date}
+
+The data in this version of the package \mbox{\textit{mirbaseID}} was downloaded from \href{http://www.mirbase.org/}{miRBbase} in:
+
+<<DownloadDate, echo=TRUE, results=verbatim>>=
+miRBaseDownloadDate
+@ 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

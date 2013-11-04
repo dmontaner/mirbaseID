@@ -1,0 +1,1056 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##e020_mirbase_id_conversion.r
+> ##2012-12-16 dmontaner@cipf.es
+> ##conversion de los identificadored de mirBASE a la ultima version
+> 
+> ###NOTA del readme de mirBASE
+> ## ftp://mirbase.org/pub/mirbase/CURRENT/README
+> 
+> ## The database_files/ directory contains dumps of the MySQL relational
+> ## database that is used to generate the web pages.  The documentation
+> ## for this subset of files is non-existent - use at your peril!
+> 
+> ##los hsa son los miRBase ID(s)
+> ##los MIMAT0000001 son los miRBase Accession(s)
+> 
+> ## we use compress = "xz" when saving the data
+> 
+> date ()
+[1] "Mon Nov  4 14:55:39 2013"
+> Sys.info ()[c("nodename", "user")]
+   nodename        user 
+   "laptop" "dmontaner" 
+> commandArgs ()
+[1] "/usr/local/lib/R/bin/exec/R"                                                                          
+[2] "-f"                                                                                                   
+[3] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data_download/e020_mirbase_id_conversion.r"
+[4] "--restore"                                                                                            
+[5] "--save"                                                                                               
+[6] "--no-readline"                                                                                        
+[7] "--no-save"                                                                                            
+[8] "--no-restore"                                                                                         
+> rm (list = ls ())
+> R.version.string #"R version 2.14.2 (2012-02-29)"
+[1] "R version 3.0.2 (2013-09-25)"
+> 
+> try (source ("job.r")); try (.job)
+$dir
+$dir$tmp
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data_download/tmp"
+
+$dir$data
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data"
+
+
+> 
+> ################################################################################
+> 
+> setwd (file.path (.job$dir$tmp))
+> dir ()
+ [1] "11" "12" "13" "14" "15" "16" "17" "18" "19" "20"
+> 
+> directorios <- 11:20
+> 
+> 
+> ###EXPLORAMOS                    el unico que parece que da problemas es el 19
+> for (i in directorios) {
++   cat ("\n")
++   print (paste ("======", i , "======"))
++   fichero <- file.path (i, "mirna_mature.txt")
++   ##
++   datos <- read.table (file = fichero, header = FALSE, sep = "\t", quote = "", as.is = TRUE)
++   #print (datos[1:3,])
++   ##
++   accesion.col <- grep ("MIMAT", datos)
++   id.col       <- grep ("hsa-",  datos)
++   ##
++   print (paste ("Accesion Col:", accesion.col))
++   print (paste ("ID Col:", id.col ))
++ }  
+
+[1] "====== 11 ======"
+[1] "Accesion Col: 3"
+[1] "ID Col: 2"
+
+[1] "====== 12 ======"
+[1] "Accesion Col: 3"
+[1] "ID Col: 2"
+
+[1] "====== 13 ======"
+[1] "Accesion Col: 3"
+[1] "ID Col: 2"
+
+[1] "====== 14 ======"
+[1] "Accesion Col: 3"
+[1] "ID Col: 2"
+
+[1] "====== 15 ======"
+[1] "Accesion Col: 3"
+[1] "ID Col: 2"
+
+[1] "====== 16 ======"
+[1] "Accesion Col: 3"
+[1] "ID Col: 2"
+
+[1] "====== 17 ======"
+[1] "Accesion Col: 3"
+[1] "ID Col: 2"
+
+[1] "====== 18 ======"
+[1] "Accesion Col: 3"
+[1] "ID Col: 2"
+
+[1] "====== 19 ======"
+[1] "Accesion Col: 4"
+[1] "ID Col: 2" "ID Col: 3"
+
+[1] "====== 20 ======"
+[1] "Accesion Col: 4"
+[1] "ID Col: 2" "ID Col: 3"
+> 
+> 
+> ###Extraemos todos los Accesion
+> all.ac <- NULL
+> for (i in directorios) {
++   cat ("\n")
++   print (paste ("======", i , "======"))
++   fichero <- file.path (i, "mirna_mature.txt")
++   ##
++   datos <- read.table (file = fichero, header = FALSE, sep = "\t", quote = "", as.is = TRUE)
++   ##
++   accesion.col <- print (grep ("MIMAT", datos))
++   if (length (accesion.col) > 1) stop ("problema: mas de una columna con Accesion")
++   
++   print (paste (length (setdiff (datos[,accesion.col], all.ac)), "new Accesions"))
++ 
++   all.ac <- sort (unique (c (all.ac, datos[,accesion.col])))
++ }  
+
+[1] "====== 11 ======"
+[1] 3
+[1] "6703 new Accesions"
+
+[1] "====== 12 ======"
+[1] 3
+[1] "2413 new Accesions"
+
+[1] "====== 13 ======"
+[1] 3
+[1] "1005 new Accesions"
+
+[1] "====== 14 ======"
+[1] 3
+[1] "1580 new Accesions"
+
+[1] "====== 15 ======"
+[1] 3
+[1] "4007 new Accesions"
+
+[1] "====== 16 ======"
+[1] 3
+[1] "1788 new Accesions"
+
+[1] "====== 17 ======"
+[1] 3
+[1] "2406 new Accesions"
+
+[1] "====== 18 ======"
+[1] 3
+[1] "1929 new Accesions"
+
+[1] "====== 19 ======"
+[1] 4
+[1] "3625 new Accesions"
+
+[1] "====== 20 ======"
+[1] 4
+[1] "5393 new Accesions"
+> 
+> length (all.ac)
+[1] 30849
+> 
+> ################################################################################
+> 
+> 
+> ###MATRIZ DE CONVERSION
+> mirIDmat <- matrix (NA, nrow = length (all.ac), ncol = length (directorios))
+> colnames (mirIDmat) <- paste ("mirBase", directorios, sep = "")
+> rownames (mirIDmat) <- all.ac
+> mirIDmat[1:3,]
+             mirBase11 mirBase12 mirBase13 mirBase14 mirBase15 mirBase16
+MIMAT0000001        NA        NA        NA        NA        NA        NA
+MIMAT0000002        NA        NA        NA        NA        NA        NA
+MIMAT0000003        NA        NA        NA        NA        NA        NA
+             mirBase17 mirBase18 mirBase19 mirBase20
+MIMAT0000001        NA        NA        NA        NA
+MIMAT0000002        NA        NA        NA        NA
+MIMAT0000003        NA        NA        NA        NA
+> 
+> ###CONVERSIONES
+> for (i in 11:18) {
++   cat ("\n")
++   print (i)
++   ##
++   fichero <- file.path (i, "mirna_mature.txt")
++   datos <- read.table (file = fichero, header = FALSE, sep = "\t", quote = "", as.is = TRUE)
++   print (datos[1:3,])
++   ##
++   datos <- datos[,c(3,2)]
++   colnames (datos) <- c("ac", "id")
++   datos <- unique (datos)
++   print (datos[1:3,])
++   ##
++   if (sum (is.na (datos)) != 0) stop ("hay NAs")
++   if (sum (datos == "")   != 0) stop ("hay Vacios")
++   ##
++   dup.ac <- duplicated (datos[,"ac"])
++   dup.id <- duplicated (datos[,"id"])
++   exclude <- datos[,"ac"] %in% datos[dup.ac, "ac"] | datos[,"id"] %in% datos[dup.id, "id"]
++   if (sum (exclude) > 0) {
++     print ("excluimos")
++     print (datos[exclude,])
++     datos <- datos[!exclude,]
++   }
++   ##
++   vect <- datos[,"id"]
++   names (vect) <- datos[,"ac"]
++   ##
++   columna <- paste ("mirBase", i, sep = "")
++   mirIDmat[,columna] <- vect[rownames (mirIDmat)]
++ }
+
+[1] 11
+     V1        V2           V3 V4 V5           V6
+1 17119 cel-let-7 MIMAT0000001 17 38 experimental
+2 17120 cel-lin-4 MIMAT0000002 16 36 experimental
+3 17121 cel-miR-1 MIMAT0000003 61 81 experimental
+                                         V7 V8
+1     cloned [1-3,5], Northern [1], PCR [4]   
+2                            cloned [1,3-5]   
+3 cloned [1-2,4-5,7], Northern [1], PCR [6]   
+            ac        id
+1 MIMAT0000001 cel-let-7
+2 MIMAT0000002 cel-lin-4
+3 MIMAT0000003 cel-miR-1
+
+[1] 12
+     V1        V2           V3 V4 V5           V6
+1 24466 cel-let-7 MIMAT0000001 17 38 experimental
+2 24467 cel-lin-4 MIMAT0000002 16 36 experimental
+3 24468 cel-miR-1 MIMAT0000003 61 81 experimental
+                                         V7 V8
+1     cloned [1-3,5], Northern [1], PCR [4]   
+2                            cloned [1,3-5]   
+3 cloned [1-2,4-5,7], Northern [1], PCR [6]   
+            ac        id
+1 MIMAT0000001 cel-let-7
+2 MIMAT0000002 cel-lin-4
+3 MIMAT0000003 cel-miR-1
+
+[1] 13
+     V1        V2           V3 V4 V5           V6
+1 34432 cel-let-7 MIMAT0000001 17 38 experimental
+2 34433 cel-lin-4 MIMAT0000002 16 36 experimental
+3 34434 cel-miR-1 MIMAT0000003 61 81 experimental
+                                         V7 V8
+1     cloned [1-3,5], Northern [1], PCR [4]   
+2                            cloned [1,3-5]   
+3 cloned [1-2,4-5,7], Northern [1], PCR [6]   
+            ac        id
+1 MIMAT0000001 cel-let-7
+2 MIMAT0000002 cel-lin-4
+3 MIMAT0000003 cel-miR-1
+
+[1] 14
+     V1        V2           V3 V4 V5           V6
+1 45434 cel-let-7 MIMAT0000001 17 38 experimental
+2 45435 cel-lin-4 MIMAT0000002 16 36 experimental
+3 45436 cel-miR-1 MIMAT0000003 61 81 experimental
+                                                     V7 V8
+1     cloned [1-3,5], Northern [1], PCR [4], Solexa [6]   
+2                            cloned [1,3-5], Solexa [6]   
+3 cloned [1-2,4-5,7], Northern [1], PCR [6], Solexa [8]   
+            ac        id
+1 MIMAT0000001 cel-let-7
+2 MIMAT0000002 cel-lin-4
+3 MIMAT0000003 cel-miR-1
+
+[1] 15
+     V1         V2           V3 V4 V5           V6
+1 58061  cel-let-7 MIMAT0000001 17 38 experimental
+2 58062 cel-let-7* MIMAT0015091 56 80 experimental
+3 58063  cel-lin-4 MIMAT0000002 16 36 experimental
+                                                              V7 V8
+1 cloned [1-3,5], Northern [1], PCR [4], Solexa [6], CLIPseq [7]   
+2                                                    CLIPseq [7]   
+3                        cloned [1,3-5], Solexa [6], CLIPseq [7]   
+            ac         id
+1 MIMAT0000001  cel-let-7
+2 MIMAT0015091 cel-let-7*
+3 MIMAT0000002  cel-lin-4
+[1] "excluimos"
+                ac           id
+5348  MIMAT0004283  ath-miR854d
+6284  MIMAT0005413 cre-miR1161a
+16930 MIMAT0004283  ath-miR854e
+16938 MIMAT0005413 cre-miR1161b
+
+[1] 16
+     V1         V2           V3 V4 V5           V6
+1 75039  cel-let-7 MIMAT0000001 17 38 experimental
+2 75040 cel-let-7* MIMAT0015091 56 80 experimental
+3 75041  cel-lin-4 MIMAT0000002 16 36 experimental
+                                                              V7 V8
+1 cloned [1-3,5], Northern [1], PCR [4], Solexa [6], CLIPseq [7]   
+2                                                    CLIPseq [7]   
+3                        cloned [1,3-5], Solexa [6], CLIPseq [7]   
+            ac         id
+1 MIMAT0000001  cel-let-7
+2 MIMAT0015091 cel-let-7*
+3 MIMAT0000002  cel-lin-4
+
+[1] 17
+     V1         V2           V3 V4 V5           V6
+1 75039  cel-let-7 MIMAT0000001 17 38 experimental
+2 75040 cel-let-7* MIMAT0015091 56 80 experimental
+3 75041  cel-lin-4 MIMAT0000002 16 36 experimental
+                                                              V7 V8
+1 cloned [1-3,5], Northern [1], PCR [4], Solexa [6], CLIPseq [7]   
+2                                                    CLIPseq [7]   
+3                        cloned [1,3-5], Solexa [6], CLIPseq [7]   
+            ac         id
+1 MIMAT0000001  cel-let-7
+2 MIMAT0015091 cel-let-7*
+3 MIMAT0000002  cel-lin-4
+
+[1] 18
+     V1           V2           V3 V4 V5           V6
+1 75039 cel-let-7-5p MIMAT0000001 17 38 experimental
+2 75040 cel-let-7-3p MIMAT0015091 56 80 experimental
+3 75041 cel-lin-4-5p MIMAT0000002 16 36 experimental
+                                                              V7 V8
+1 cloned [1-3,5], Northern [1], PCR [4], Solexa [6], CLIPseq [7]   
+2                                                    CLIPseq [7]   
+3                        cloned [1,3-5], Solexa [6], CLIPseq [7]   
+            ac           id
+1 MIMAT0000001 cel-let-7-5p
+2 MIMAT0015091 cel-let-7-3p
+3 MIMAT0000002 cel-lin-4-5p
+> 
+> mirIDmat[1:10,]
+             mirBase11    mirBase12    mirBase13    mirBase14    mirBase15   
+MIMAT0000001 "cel-let-7"  "cel-let-7"  "cel-let-7"  "cel-let-7"  "cel-let-7" 
+MIMAT0000002 "cel-lin-4"  "cel-lin-4"  "cel-lin-4"  "cel-lin-4"  "cel-lin-4" 
+MIMAT0000003 "cel-miR-1"  "cel-miR-1"  "cel-miR-1"  "cel-miR-1"  "cel-miR-1" 
+MIMAT0000004 "cel-miR-2"  "cel-miR-2"  "cel-miR-2"  "cel-miR-2"  "cel-miR-2" 
+MIMAT0000005 "cel-miR-34" "cel-miR-34" "cel-miR-34" "cel-miR-34" "cel-miR-34"
+MIMAT0000006 "cel-miR-35" "cel-miR-35" "cel-miR-35" "cel-miR-35" "cel-miR-35"
+MIMAT0000007 "cel-miR-36" "cel-miR-36" "cel-miR-36" "cel-miR-36" "cel-miR-36"
+MIMAT0000008 "cel-miR-37" "cel-miR-37" "cel-miR-37" "cel-miR-37" "cel-miR-37"
+MIMAT0000009 "cel-miR-38" "cel-miR-38" "cel-miR-38" "cel-miR-38" "cel-miR-38"
+MIMAT0000010 "cel-miR-39" "cel-miR-39" "cel-miR-39" "cel-miR-39" "cel-miR-39"
+             mirBase16    mirBase17    mirBase18       mirBase19 mirBase20
+MIMAT0000001 "cel-let-7"  "cel-let-7"  "cel-let-7-5p"  NA        NA       
+MIMAT0000002 "cel-lin-4"  "cel-lin-4"  "cel-lin-4-5p"  NA        NA       
+MIMAT0000003 "cel-miR-1"  "cel-miR-1"  "cel-miR-1-3p"  NA        NA       
+MIMAT0000004 "cel-miR-2"  "cel-miR-2"  "cel-miR-2-3p"  NA        NA       
+MIMAT0000005 "cel-miR-34" "cel-miR-34" "cel-miR-34-5p" NA        NA       
+MIMAT0000006 "cel-miR-35" "cel-miR-35" "cel-miR-35-3p" NA        NA       
+MIMAT0000007 "cel-miR-36" "cel-miR-36" "cel-miR-36-3p" NA        NA       
+MIMAT0000008 "cel-miR-37" "cel-miR-37" "cel-miR-37-3p" NA        NA       
+MIMAT0000009 "cel-miR-38" "cel-miR-38" "cel-miR-38-3p" NA        NA       
+MIMAT0000010 "cel-miR-39" "cel-miR-39" "cel-miR-39-3p" NA        NA       
+> 
+> ################################################################################
+> 
+> 
+> ###CONVERSION mirbase 19
+> ## no se por que es un poco rarita esta ultima version
+> 
+> for (i in 19: 20) {
++   cat ("\n")
++   print (i)
++   ##
++   fichero <- file.path (i, "mirna_mature.txt")
++   datos <- read.table (file = fichero, header = FALSE, sep = "\t", quote = "", as.is = TRUE)
++   print (datos[1:3,])
++   ##
++   datos <- datos[,c(4,2)]  ## ESTAS COLUMNAS SOLO SON ASI PARA LAS VERSIONES 19 Y 20. REVISAR QUE NO CAMBIE EN LAS PROXIMAS.
++   colnames (datos) <- c("ac", "id")
++   datos <- unique (datos)
++   print (datos[1:3,])
++   ##
++   if (sum (is.na (datos)) != 0) stop ("hay NAs")
++   if (sum (datos == "")   != 0) stop ("hay Vacios")
++   ##
++   dup.ac <- duplicated (datos[,"ac"])
++   dup.id <- duplicated (datos[,"id"])
++   exclude <- datos[,"ac"] %in% datos[dup.ac, "ac"] | datos[,"id"] %in% datos[dup.id, "id"]
++   
++   
++   ##hay muchos duplicados: 450 en la version 19. Tdodo lo que sigue es para recuperar alguno de ellos:
++   sum (exclude)
++   ##
++   duplicados <- datos[exclude,]
++   datos <- datos[!exclude,]
++   
++   buenos <- grep ("p$", duplicados[,"id"], value = TRUE)
++   touse <- duplicados[,"id"] %in% buenos
++   table (touse)
++   duplicados <- duplicados[touse,]
++   ##
++   datos <- rbind (datos, duplicados)
++   
++   
++   ##
++   dup.ac <- duplicated (datos[,"ac"])
++   dup.id <- duplicated (datos[,"id"])
++   exclude <- datos[,"ac"] %in% datos[dup.ac, "ac"] | datos[,"id"] %in% datos[dup.id, "id"]
++   if (sum (exclude) > 0) {
++     print ("excluimos")
++     print (datos[exclude,])
++     datos <- datos[!exclude,]
++   }
++   ##
++   vect <- datos[,"id"]
++   names (vect) <- datos[,"ac"]
++   ##
++   columna <- paste ("mirBase", i, sep = "")
++   mirIDmat[,columna] <- vect[rownames (mirIDmat)]
++ }
+
+[1] 19
+     V1           V2         V3           V4 V5 V6           V7
+1 75039 cel-let-7-5p  cel-let-7 MIMAT0000001 17 38 experimental
+2 75040 cel-let-7-3p cel-let-7* MIMAT0015091 56 80 experimental
+3 75041 cel-lin-4-5p  cel-lin-4 MIMAT0000002 16 36 experimental
+                                                              V8 V9
+1 cloned [1-3,5], Northern [1], PCR [4], Solexa [6], CLIPseq [7]   
+2                                                    CLIPseq [7]   
+3                        cloned [1,3-5], Solexa [6], CLIPseq [7]   
+            ac           id
+1 MIMAT0000001 cel-let-7-5p
+2 MIMAT0015091 cel-let-7-3p
+3 MIMAT0000002 cel-lin-4-5p
+[1] "excluimos"
+                ac               id
+7326  MIMAT0007078 oan-miR-1421p-5p
+7626  MIMAT0007078    oan-miR-1421p
+17318 MIMAT0017835    rno-miR-9b-5p
+17319 MIMAT0017836    rno-miR-9b-3p
+17324 MIMAT0017835  rno-miR-3597-5p
+17325 MIMAT0017836  rno-miR-3597-3p
+
+[1] 20
+     V1           V2         V3           V4           V5
+1 75039 cel-let-7-5p  cel-let-7 MIMAT0000001 experimental
+2 75040 cel-let-7-3p cel-let-7* MIMAT0015091 experimental
+3 75041 cel-lin-4-5p  cel-lin-4 MIMAT0000002 experimental
+                                                                                                                        V6
+1 cloned [11679671,12672692,12747828,17174894], Northern [11679671], PCR [12769849], Solexa [19460142], CLIPseq [20062054]
+2                                                                                                       CLIPseq [20062054]
+3                                      cloned [11679671,12672692,12747828,17174894], Solexa [19460142], CLIPseq [20062054]
+  V7
+1   
+2   
+3   
+            ac           id
+1 MIMAT0000001 cel-let-7-5p
+2 MIMAT0015091 cel-let-7-3p
+3 MIMAT0000002 cel-lin-4-5p
+> 
+> mirIDmat[1:10,]
+             mirBase11    mirBase12    mirBase13    mirBase14    mirBase15   
+MIMAT0000001 "cel-let-7"  "cel-let-7"  "cel-let-7"  "cel-let-7"  "cel-let-7" 
+MIMAT0000002 "cel-lin-4"  "cel-lin-4"  "cel-lin-4"  "cel-lin-4"  "cel-lin-4" 
+MIMAT0000003 "cel-miR-1"  "cel-miR-1"  "cel-miR-1"  "cel-miR-1"  "cel-miR-1" 
+MIMAT0000004 "cel-miR-2"  "cel-miR-2"  "cel-miR-2"  "cel-miR-2"  "cel-miR-2" 
+MIMAT0000005 "cel-miR-34" "cel-miR-34" "cel-miR-34" "cel-miR-34" "cel-miR-34"
+MIMAT0000006 "cel-miR-35" "cel-miR-35" "cel-miR-35" "cel-miR-35" "cel-miR-35"
+MIMAT0000007 "cel-miR-36" "cel-miR-36" "cel-miR-36" "cel-miR-36" "cel-miR-36"
+MIMAT0000008 "cel-miR-37" "cel-miR-37" "cel-miR-37" "cel-miR-37" "cel-miR-37"
+MIMAT0000009 "cel-miR-38" "cel-miR-38" "cel-miR-38" "cel-miR-38" "cel-miR-38"
+MIMAT0000010 "cel-miR-39" "cel-miR-39" "cel-miR-39" "cel-miR-39" "cel-miR-39"
+             mirBase16    mirBase17    mirBase18       mirBase19      
+MIMAT0000001 "cel-let-7"  "cel-let-7"  "cel-let-7-5p"  "cel-let-7-5p" 
+MIMAT0000002 "cel-lin-4"  "cel-lin-4"  "cel-lin-4-5p"  "cel-lin-4-5p" 
+MIMAT0000003 "cel-miR-1"  "cel-miR-1"  "cel-miR-1-3p"  "cel-miR-1-3p" 
+MIMAT0000004 "cel-miR-2"  "cel-miR-2"  "cel-miR-2-3p"  "cel-miR-2-3p" 
+MIMAT0000005 "cel-miR-34" "cel-miR-34" "cel-miR-34-5p" "cel-miR-34-5p"
+MIMAT0000006 "cel-miR-35" "cel-miR-35" "cel-miR-35-3p" "cel-miR-35-3p"
+MIMAT0000007 "cel-miR-36" "cel-miR-36" "cel-miR-36-3p" "cel-miR-36-3p"
+MIMAT0000008 "cel-miR-37" "cel-miR-37" "cel-miR-37-3p" "cel-miR-37-3p"
+MIMAT0000009 "cel-miR-38" "cel-miR-38" "cel-miR-38-3p" "cel-miR-38-3p"
+MIMAT0000010 "cel-miR-39" "cel-miR-39" "cel-miR-39-3p" "cel-miR-39-3p"
+             mirBase20      
+MIMAT0000001 "cel-let-7-5p" 
+MIMAT0000002 "cel-lin-4-5p" 
+MIMAT0000003 "cel-miR-1-3p" 
+MIMAT0000004 "cel-miR-2-3p" 
+MIMAT0000005 "cel-miR-34-5p"
+MIMAT0000006 "cel-miR-35-3p"
+MIMAT0000007 "cel-miR-36-3p"
+MIMAT0000008 "cel-miR-37-3p"
+MIMAT0000009 "cel-miR-38-3p"
+MIMAT0000010 "cel-miR-39-3p"
+> 
+> ################################################################################
+> 
+> t (apply (mirIDmat, 2, function (x) table (is.na (x))))
+          FALSE  TRUE
+mirBase11  6703 24146
+mirBase12  9110 21739
+mirBase13 10097 20752
+mirBase14 11663 19186
+mirBase15 15628 15221
+mirBase16 17341 13508
+mirBase17 19724 11125
+mirBase18 21643  9206
+mirBase19 25135  5714
+mirBase20 30424   425
+> 
+> ##hay bastantes cambios de la version 18 a la 19
+> from <- "18"
+> to <- "19"
+> ##
+> col.from <- paste ("mirBase", from, sep = "")
+> col.to   <- paste ("mirBase", to ,  sep = "")
+> ##
+> dif <- mirIDmat[,col.from] != mirIDmat[,col.to]
+> table (dif)
+dif
+FALSE  TRUE 
+16850  4660 
+> ##
+> diferentes <- mirIDmat[dif, c(col.from, col.to)]  ##aunque los humanos son pocos
+> humanos <- grep ("hsa", diferentes[,col.to])
+> diferentes[humanos,]
+             mirBase18         mirBase19        
+MIMAT0000096 "hsa-miR-98"      "hsa-miR-98-5p"  
+MIMAT0000264 "hsa-miR-203"     "hsa-miR-203a"   
+MIMAT0000273 "hsa-miR-216a"    "hsa-miR-216a-5p"
+MIMAT0000720 "hsa-miR-376c"    "hsa-miR-376c-3p"
+MIMAT0000736 "hsa-miR-381"     "hsa-miR-381-3p" 
+MIMAT0002172 "hsa-miR-376b"    "hsa-miR-376b-3p"
+MIMAT0002817 "hsa-miR-495"     "hsa-miR-495-3p" 
+MIMAT0002874 "hsa-miR-503"     "hsa-miR-503-5p" 
+MIMAT0003333 "hsa-miR-549"     "hsa-miR-549a"   
+MIMAT0003879 "hsa-miR-758"     "hsa-miR-758-3p" 
+MIMAT0004980 "hsa-miR-937"     "hsa-miR-937-3p" 
+MIMAT0004982 "hsa-miR-939"     "hsa-miR-939-5p" 
+MIMAT0005580 "hsa-miR-1227"    "hsa-miR-1227-3p"
+MIMAT0005584 "hsa-miR-1229"    "hsa-miR-1229-3p"
+MIMAT0005588 "hsa-miR-1233"    "hsa-miR-1233-3p"
+MIMAT0005589 "hsa-miR-1234"    "hsa-miR-1234-3p"
+MIMAT0005591 "hsa-miR-1236"    "hsa-miR-1236-3p"
+MIMAT0005592 "hsa-miR-1237"    "hsa-miR-1237-3p"
+MIMAT0005593 "hsa-miR-1238"    "hsa-miR-1238-3p"
+MIMAT0005823 "hsa-miR-1178"    "hsa-miR-1178-3p"
+MIMAT0005943 "hsa-miR-1292"    "hsa-miR-1292-5p"
+MIMAT0005948 "hsa-miR-664-5p"  "hsa-miR-664a-5p"
+MIMAT0005949 "hsa-miR-664-3p"  "hsa-miR-664a-3p"
+MIMAT0017983 "hsa-miR-3606"    "hsa-miR-3606-5p"
+MIMAT0017997 "hsa-miR-3617"    "hsa-miR-3617-5p"
+MIMAT0018001 "hsa-miR-3620"    "hsa-miR-3620-3p"
+MIMAT0018202 "hsa-miR-3927"    "hsa-miR-3927-3p"
+MIMAT0018349 "hsa-miR-3934"    "hsa-miR-3934-5p"
+MIMAT0019688 "hsa-miR-4632"    "hsa-miR-4632-3p"
+MIMAT0019813 "hsa-miR-3545-5p" "hsa-miR-203b-5p"
+MIMAT0019814 "hsa-miR-3545-3p" "hsa-miR-203b-3p"
+MIMAT0019874 "hsa-miR-4743"    "hsa-miR-4743-5p"
+MIMAT0019887 "hsa-miR-4750"    "hsa-miR-4750-5p"
+MIMAT0021081 "hsa-miR-5089"    "hsa-miR-5089-5p"
+MIMAT0022271 "hsa-miR-644b-5p" "hsa-miR-664b-5p"
+MIMAT0022272 "hsa-miR-644b-3p" "hsa-miR-664b-3p"
+> 
+> 
+> ##No hay tantos cambios de la version 19 a la 20
+> from <- "19"
+> to <- "20"
+> ##
+> col.from <- paste ("mirBase", from, sep = "")
+> col.to   <- paste ("mirBase", to ,  sep = "")
+> ##
+> dif <- mirIDmat[,col.from] != mirIDmat[,col.to]
+> table (dif)
+dif
+FALSE  TRUE 
+24216   809 
+> ##
+> diferentes <- mirIDmat[dif, c(col.from, col.to)]  ##pero los humanos parecen mas
+> humanos <- grep ("hsa", diferentes[,col.to])
+> diferentes[humanos,]
+             mirBase19           mirBase20          
+MIMAT0000064 "hsa-let-7c"        "hsa-let-7c-5p"    
+MIMAT0000094 "hsa-miR-95"        "hsa-miR-95-3p"    
+MIMAT0000241 "hsa-miR-208a"      "hsa-miR-208a-3p"  
+MIMAT0000267 "hsa-miR-210"       "hsa-miR-210-3p"   
+MIMAT0000272 "hsa-miR-215"       "hsa-miR-215-5p"   
+MIMAT0000276 "hsa-miR-219-5p"    "hsa-miR-219a-5p"  
+MIMAT0000424 "hsa-miR-128"       "hsa-miR-128-3p"   
+MIMAT0000427 "hsa-miR-133a"      "hsa-miR-133a-3p"  
+MIMAT0000438 "hsa-miR-152"       "hsa-miR-152-3p"   
+MIMAT0000439 "hsa-miR-153"       "hsa-miR-153-3p"   
+MIMAT0000447 "hsa-miR-134"       "hsa-miR-134-5p"   
+MIMAT0000458 "hsa-miR-190a"      "hsa-miR-190a-5p"  
+MIMAT0000722 "hsa-miR-370"       "hsa-miR-370-3p"   
+MIMAT0000724 "hsa-miR-372"       "hsa-miR-372-3p"   
+MIMAT0000738 "hsa-miR-383"       "hsa-miR-383-5p"   
+MIMAT0000752 "hsa-miR-328"       "hsa-miR-328-3p"   
+MIMAT0001627 "hsa-miR-433"       "hsa-miR-433-3p"   
+MIMAT0001629 "hsa-miR-329"       "hsa-miR-329-3p"   
+MIMAT0002170 "hsa-miR-412"       "hsa-miR-412-3p"   
+MIMAT0002171 "hsa-miR-410"       "hsa-miR-410-3p"   
+MIMAT0002178 "hsa-miR-487a"      "hsa-miR-487a-3p"  
+MIMAT0002805 "hsa-miR-489"       "hsa-miR-489-3p"   
+MIMAT0002808 "hsa-miR-511"       "hsa-miR-511-5p"   
+MIMAT0002816 "hsa-miR-494"       "hsa-miR-494-3p"   
+MIMAT0002821 "hsa-miR-181d"      "hsa-miR-181d-5p"  
+MIMAT0002830 "hsa-miR-520f"      "hsa-miR-520f-3p"  
+MIMAT0002853 "hsa-miR-519d"      "hsa-miR-519d-3p"  
+MIMAT0002858 "hsa-miR-520g"      "hsa-miR-520g-3p"  
+MIMAT0002875 "hsa-miR-504"       "hsa-miR-504-5p"   
+MIMAT0002882 "hsa-miR-510"       "hsa-miR-510-5p"   
+MIMAT0003180 "hsa-miR-487b"      "hsa-miR-487b-3p"  
+MIMAT0003215 "hsa-miR-552"       "hsa-miR-552-3p"   
+MIMAT0003244 "hsa-miR-579"       "hsa-miR-579-3p"   
+MIMAT0003245 "hsa-miR-580"       "hsa-miR-580-3p"   
+MIMAT0003250 "hsa-miR-585"       "hsa-miR-585-3p"   
+MIMAT0003265 "hsa-miR-597"       "hsa-miR-597-5p"   
+MIMAT0003266 "hsa-miR-598"       "hsa-miR-598-3p"   
+MIMAT0003273 "hsa-miR-605"       "hsa-miR-605-5p"   
+MIMAT0003288 "hsa-miR-619"       "hsa-miR-619-3p"   
+MIMAT0003296 "hsa-miR-627"       "hsa-miR-627-5p"   
+MIMAT0003321 "hsa-miR-651"       "hsa-miR-651-5p"   
+MIMAT0003328 "hsa-miR-653"       "hsa-miR-653-5p"   
+MIMAT0003331 "hsa-miR-655"       "hsa-miR-655-3p"   
+MIMAT0003332 "hsa-miR-656"       "hsa-miR-656-3p"   
+MIMAT0003881 "hsa-miR-668"       "hsa-miR-668-3p"   
+MIMAT0004567 "hsa-miR-219-1-3p"  "hsa-miR-219a-1-3p"
+MIMAT0004675 "hsa-miR-219-2-3p"  "hsa-miR-219a-2-3p"
+MIMAT0004902 "hsa-miR-891a"      "hsa-miR-891a-5p"  
+MIMAT0004911 "hsa-miR-874"       "hsa-miR-874-3p"   
+MIMAT0004921 "hsa-miR-889"       "hsa-miR-889-3p"   
+MIMAT0004951 "hsa-miR-887"       "hsa-miR-887-3p"   
+MIMAT0004959 "hsa-miR-216b"      "hsa-miR-216b-5p"  
+MIMAT0004960 "hsa-miR-208b"      "hsa-miR-208b-3p"  
+MIMAT0004985 "hsa-miR-942"       "hsa-miR-942-5p"   
+MIMAT0005788 "hsa-miR-513b"      "hsa-miR-513b-5p"  
+MIMAT0005794 "hsa-miR-1296"      "hsa-miR-1296-5p"  
+MIMAT0005797 "hsa-miR-1301"      "hsa-miR-1301-3p"  
+MIMAT0005800 "hsa-miR-1298"      "hsa-miR-1298-5p"  
+MIMAT0005825 "hsa-miR-1180"      "hsa-miR-1180-3p"  
+MIMAT0005874 "hsa-miR-548e"      "hsa-miR-548e-3p"  
+MIMAT0005875 "hsa-miR-548j"      "hsa-miR-548j-5p"  
+MIMAT0005878 "hsa-miR-1287"      "hsa-miR-1287-5p"  
+MIMAT0005895 "hsa-miR-548f"      "hsa-miR-548f-3p"  
+MIMAT0005902 "hsa-miR-1250"      "hsa-miR-1250-5p"  
+MIMAT0005903 "hsa-miR-1251"      "hsa-miR-1251-5p"  
+MIMAT0005920 "hsa-miR-1266"      "hsa-miR-1266-5p"  
+MIMAT0005942 "hsa-miR-1288"      "hsa-miR-1288-3p"  
+MIMAT0005944 "hsa-miR-1252"      "hsa-miR-1252-5p"  
+MIMAT0006789 "hsa-miR-1468"      "hsa-miR-1468-5p"  
+MIMAT0007399 "hsa-miR-1537"      "hsa-miR-1537-3p"  
+MIMAT0007881 "hsa-miR-1908"      "hsa-miR-1908-5p"  
+MIMAT0007884 "hsa-miR-1910"      "hsa-miR-1910-5p"  
+MIMAT0010357 "hsa-miR-670"       "hsa-miR-670-5p"   
+MIMAT0011775 "hsa-miR-2276"      "hsa-miR-2276-3p"  
+MIMAT0015024 "hsa-miR-3151"      "hsa-miR-3151-5p"  
+MIMAT0015076 "hsa-miR-3192"      "hsa-miR-3192-5p"  
+MIMAT0016925 "hsa-miR-500b"      "hsa-miR-500b-5p"  
+MIMAT0018186 "hsa-miR-3912"      "hsa-miR-3912-3p"  
+MIMAT0018205 "hsa-miR-3928"      "hsa-miR-3928-3p"  
+MIMAT0019747 "hsa-miR-2964a-5p"  "hsa-miR-219b-5p"  
+MIMAT0019748 "hsa-miR-2964a-3p"  "hsa-miR-219b-3p"  
+MIMAT0019776 "hsa-miR-1343"      "hsa-miR-1343-3p"  
+MIMAT0021080 "hsa-miR-5088"      "hsa-miR-5088-5p"  
+MIMAT0021120 "hsa-miR-5189"      "hsa-miR-5189-5p"  
+MIMAT0022492 "hsa-miR-5699"      "hsa-miR-5699-3p"  
+MIMAT0022700 "hsa-miR-450a-3p"   "hsa-miR-450a-1-3p"
+MIMAT0022943 "hsa-miR-1233-1-5p" "hsa-miR-1233-5p"  
+> 
+> ################################################################################
+> ################################################################################
+> 
+> 
+> ##CONSTRUIMOS el vectores de conversion a la version 19.
+> mirIDmat[1:3,]
+             mirBase11   mirBase12   mirBase13   mirBase14   mirBase15  
+MIMAT0000001 "cel-let-7" "cel-let-7" "cel-let-7" "cel-let-7" "cel-let-7"
+MIMAT0000002 "cel-lin-4" "cel-lin-4" "cel-lin-4" "cel-lin-4" "cel-lin-4"
+MIMAT0000003 "cel-miR-1" "cel-miR-1" "cel-miR-1" "cel-miR-1" "cel-miR-1"
+             mirBase16   mirBase17   mirBase18      mirBase19     
+MIMAT0000001 "cel-let-7" "cel-let-7" "cel-let-7-5p" "cel-let-7-5p"
+MIMAT0000002 "cel-lin-4" "cel-lin-4" "cel-lin-4-5p" "cel-lin-4-5p"
+MIMAT0000003 "cel-miR-1" "cel-miR-1" "cel-miR-1-3p" "cel-miR-1-3p"
+             mirBase20     
+MIMAT0000001 "cel-let-7-5p"
+MIMAT0000002 "cel-lin-4-5p"
+MIMAT0000003 "cel-miR-1-3p"
+> 
+> N <- ncol (mirIDmat)
+> 
+> ## mirBase19
+> mat <- cbind (as.vector (mirIDmat), mirIDmat[,"mirBase19"])
+> table (is.na (mat))
+
+ FALSE   TRUE 
+418818 198162 
+> 
+> exclude <- is.na (mat[,1]) | is.na (mat[,2])
+> table (exclude)
+exclude
+ FALSE   TRUE 
+160806 147684 
+> mat <- mat[!exclude,]
+> 
+> mat <- unique (mat)
+> dup <- duplicated (mat[,1])
+> table (dup)
+dup
+FALSE  TRUE 
+32639    43 
+> 
+> esdup <- mat[,1] %in% mat[dup, 1]
+> malos <- mat[esdup,]
+> ##
+> orden <- order (malos[,1])
+> malos <- malos[orden,]
+> malos
+      [,1]               [,2]                
+ [1,] "bmo-miR-1"        "bmo-miR-1a-3p"     
+ [2,] "bmo-miR-1"        "bmo-miR-1b-3p"     
+ [3,] "bmo-miR-965"      "bmo-miR-965-3p"    
+ [4,] "bmo-miR-965"      "bmo-miR-965-5p"    
+ [5,] "bta-miR-193a"     "bta-miR-193a-3p"   
+ [6,] "bta-miR-193a"     "bta-miR-193a"      
+ [7,] "bta-miR-24"       "bta-miR-24-3p"     
+ [8,] "bta-miR-24"       "bta-miR-24"        
+ [9,] "dme-miR-10"       "dme-miR-10-5p"     
+[10,] "dme-miR-10"       "dme-miR-10-3p"     
+[11,] "hsa-miR-499a-3p"  "hsa-miR-499b-3p"   
+[12,] "hsa-miR-499a-3p"  "hsa-miR-499a-3p"   
+[13,] "hsa-miR-499a-5p"  "hsa-miR-499b-5p"   
+[14,] "hsa-miR-499a-5p"  "hsa-miR-499a-5p"   
+[15,] "kshv-miR-K12-12"  "kshv-miR-K12-12-5p"
+[16,] "kshv-miR-K12-12"  "kshv-miR-K12-12-3p"
+[17,] "kshv-miR-K12-12*" "kshv-miR-K12-12-3p"
+[18,] "kshv-miR-K12-12*" "kshv-miR-K12-12-5p"
+[19,] "mdv1-miR-M7"      "mdv1-miR-M7-5p"    
+[20,] "mdv1-miR-M7"      "mdv1-miR-M7-3p"    
+[21,] "mdv1-miR-M7*"     "mdv1-miR-M7-3p"    
+[22,] "mdv1-miR-M7*"     "mdv1-miR-M7-5p"    
+[23,] "mtr-miR169b"      "mtr-miR169b"       
+[24,] "mtr-miR169b"      "mtr-miR169j"       
+[25,] "mtr-miR169j"      "mtr-miR169j"       
+[26,] "mtr-miR169j"      "mtr-miR169q"       
+[27,] "mtr-miR169k"      "mtr-miR169k"       
+[28,] "mtr-miR169k"      "mtr-miR169p"       
+[29,] "mtr-miR171g"      "mtr-miR171g"       
+[30,] "mtr-miR171g"      "mtr-miR171i"       
+[31,] "mtr-miR2111b"     "mtr-miR2111b"      
+[32,] "mtr-miR2111b"     "mtr-miR2111c"      
+[33,] "mtr-miR2111c"     "mtr-miR2111c"      
+[34,] "mtr-miR2111c"     "mtr-miR2111h"      
+[35,] "mtr-miR2111f"     "mtr-miR2111f"      
+[36,] "mtr-miR2111f"     "mtr-miR2111u"      
+[37,] "mtr-miR2111h"     "mtr-miR2111h"      
+[38,] "mtr-miR2111h"     "mtr-miR2111n"      
+[39,] "mtr-miR2111i"     "mtr-miR2111i"      
+[40,] "mtr-miR2111i"     "mtr-miR2111o"      
+[41,] "mtr-miR2111j"     "mtr-miR2111j"      
+[42,] "mtr-miR2111j"     "mtr-miR2111e"      
+[43,] "mtr-miR2111k"     "mtr-miR2111k"      
+[44,] "mtr-miR2111k"     "mtr-miR2111f"      
+[45,] "mtr-miR2111l"     "mtr-miR2111l"      
+[46,] "mtr-miR2111l"     "mtr-miR2111t"      
+[47,] "mtr-miR2111n"     "mtr-miR2111n"      
+[48,] "mtr-miR2111n"     "mtr-miR2111r"      
+[49,] "mtr-miR2111o"     "mtr-miR2111o"      
+[50,] "mtr-miR2111o"     "mtr-miR2111s"      
+[51,] "mtr-miR2592a"     "mtr-miR2592a.2-3p" 
+[52,] "mtr-miR2592a"     "mtr-miR2592a-3p"   
+[53,] "mtr-miR2606c"     "mtr-miR2606c"      
+[54,] "mtr-miR2606c"     "mtr-miR2606d"      
+[55,] "mtr-miR395k"      "mtr-miR395k"       
+[56,] "mtr-miR395k"      "mtr-miR395p"       
+[57,] "osa-miR166j-3p"   "osa-miR166j-3p"    
+[58,] "osa-miR166j-3p"   "osa-miR166n-3p"    
+[59,] "osa-miR166j-5p"   "osa-miR166j-5p"    
+[60,] "osa-miR166j-5p"   "osa-miR166n-5p"    
+[61,] "osa-miR396d"      "osa-miR396d"       
+[62,] "osa-miR396d"      "osa-miR396i"       
+[63,] "osa-miR439i"      "osa-miR439i"       
+[64,] "osa-miR439i"      "osa-miR439j"       
+[65,] "osa-miR827"       "osa-miR827c"       
+[66,] "osa-miR827"       "osa-miR827a"       
+[67,] "ptc-miR159c"      "ptc-miR159c"       
+[68,] "ptc-miR159c"      "ptc-miR159f"       
+[69,] "ptc-miR171j"      "ptc-miR171j"       
+[70,] "ptc-miR171j"      "ptc-miR171n"       
+[71,] "ptc-miR399c"      "ptc-miR399c"       
+[72,] "ptc-miR399c"      "ptc-miR399k"       
+[73,] "ptc-miR399e"      "ptc-miR399e"       
+[74,] "ptc-miR399e"      "ptc-miR399l"       
+[75,] "ptc-miR478n"      "ptc-miR478n"       
+[76,] "ptc-miR478n"      "ptc-miR478u"       
+[77,] "ptc-miR481d"      "ptc-miR481d"       
+[78,] "ptc-miR481d"      "ptc-miR481e"       
+[79,] "ssc-miR-196b"     "ssc-miR-196b-5p"   
+[80,] "ssc-miR-196b"     "ssc-miR-196b"      
+[81,] "ssc-miR-218"      "ssc-miR-218-3p"    
+[82,] "ssc-miR-218"      "ssc-miR-218"       
+[83,] "ssc-miR-339"      "ssc-miR-339-5p"    
+[84,] "ssc-miR-339"      "ssc-miR-339"       
+[85,] "ssc-miR-490"      "ssc-miR-490-5p"    
+[86,] "ssc-miR-490"      "ssc-miR-490"       
+> ##
+> mat <- mat[!esdup,]  ##los quitamos
+> dim (mat)
+[1] 32596     2
+> 
+> table (duplicated (mat[,1]))
+
+FALSE 
+32596 
+> table (duplicated (mat[,2])) #NO HAY PROBLEMA CON ESTOS DUPLICADOS
+
+FALSE  TRUE 
+25106  7490 
+> 
+> ##ordenamos por nombre
+> orden <- order (mat[,1])
+> mat <- mat[orden,]
+> mat[1:10,]
+      [,1]            [,2]           
+ [1,] "aae-bantam-3p" "aae-bantam-3p"
+ [2,] "aae-bantam-5p" "aae-bantam-5p"
+ [3,] "aae-let-7"     "aae-let-7"    
+ [4,] "aae-miR-1"     "aae-miR-1"    
+ [5,] "aae-miR-10"    "aae-miR-10"   
+ [6,] "aae-miR-100"   "aae-miR-100"  
+ [7,] "aae-miR-1000"  "aae-miR-1000" 
+ [8,] "aae-miR-11"    "aae-miR-11-3p"
+ [9,] "aae-miR-11-3p" "aae-miR-11-3p"
+[10,] "aae-miR-11-5p" "aae-miR-11-5p"
+> 
+> ###FORMATO VECTOR
+> id2mir19 <- mat[,2]
+> names (id2mir19) <- mat[,1]
+> 
+> 
+> ##CONSTRUIMOS el vectores de conversion a la version 20
+> source (file.path ("../../R", "mirbVersions.r"))
+> source (file.path ("../../R", "buildVersion.r"))
+> id2mir20 <- buildVersion (20)
+
+  25 IDs do not have a unique conversion to mirBase version 20;
+  they will be removed.
+
+Excluded conversions are:
+      [,1]               [,2]                
+ [1,] "bmo-miR-1"        "bmo-miR-1a-3p"     
+ [2,] "bmo-miR-1"        "bmo-miR-1b-3p"     
+ [3,] "bmo-miR-965"      "bmo-miR-965-3p"    
+ [4,] "bmo-miR-965"      "bmo-miR-965-5p"    
+ [5,] "bta-miR-193a"     "bta-miR-193a-3p"   
+ [6,] "bta-miR-193a"     "bta-miR-193a"      
+ [7,] "bta-miR-219"      "bta-miR-219-5p"    
+ [8,] "bta-miR-219"      "bta-miR-219"       
+ [9,] "bta-miR-24"       "bta-miR-24-3p"     
+[10,] "bta-miR-24"       "bta-miR-24"        
+[11,] "dme-miR-10"       "dme-miR-10-5p"     
+[12,] "dme-miR-10"       "dme-miR-10-3p"     
+[13,] "hsa-miR-499a-3p"  "hsa-miR-499b-3p"   
+[14,] "hsa-miR-499a-3p"  "hsa-miR-499a-3p"   
+[15,] "hsa-miR-499a-5p"  "hsa-miR-499b-5p"   
+[16,] "hsa-miR-499a-5p"  "hsa-miR-499a-5p"   
+[17,] "kshv-miR-K12-12"  "kshv-miR-K12-12-5p"
+[18,] "kshv-miR-K12-12"  "kshv-miR-K12-12-3p"
+[19,] "kshv-miR-K12-12*" "kshv-miR-K12-12-3p"
+[20,] "kshv-miR-K12-12*" "kshv-miR-K12-12-5p"
+[21,] "mdv1-miR-M7"      "mdv1-miR-M7-5p"    
+[22,] "mdv1-miR-M7"      "mdv1-miR-M7-3p"    
+[23,] "mdv1-miR-M7*"     "mdv1-miR-M7-3p"    
+[24,] "mdv1-miR-M7*"     "mdv1-miR-M7-5p"    
+[25,] "mtr-miR169j"      "mtr-miR169b"       
+[26,] "mtr-miR169j"      "mtr-miR169j"       
+[27,] "mtr-miR2111c"     "mtr-miR2111b"      
+[28,] "mtr-miR2111c"     "mtr-miR2111c"      
+[29,] "mtr-miR2111f"     "mtr-miR2111k"      
+[30,] "mtr-miR2111f"     "mtr-miR2111f"      
+[31,] "mtr-miR2111h"     "mtr-miR2111c"      
+[32,] "mtr-miR2111h"     "mtr-miR2111h"      
+[33,] "mtr-miR2111j"     "mtr-miR2111d-5p"   
+[34,] "mtr-miR2111j"     "mtr-miR2111j"      
+[35,] "mtr-miR2111k"     "mtr-miR2111e-5p"   
+[36,] "mtr-miR2111k"     "mtr-miR2111k"      
+[37,] "mtr-miR2111n"     "mtr-miR2111h"      
+[38,] "mtr-miR2111n"     "mtr-miR2111n"      
+[39,] "mtr-miR2111o"     "mtr-miR2111i"      
+[40,] "mtr-miR2111o"     "mtr-miR2111o"      
+[41,] "mtr-miR2592a"     "mtr-miR2592a.2-3p" 
+[42,] "mtr-miR2592a"     "mtr-miR2592a-3p"   
+[43,] "ssc-miR-196b"     "ssc-miR-196b-5p"   
+[44,] "ssc-miR-196b"     "ssc-miR-196b"      
+[45,] "ssc-miR-218"      "ssc-miR-218-3p"    
+[46,] "ssc-miR-218"      "ssc-miR-218"       
+[47,] "ssc-miR-339"      "ssc-miR-339-5p"    
+[48,] "ssc-miR-339"      "ssc-miR-339"       
+[49,] "ssc-miR-490"      "ssc-miR-490-5p"    
+[50,] "ssc-miR-490"      "ssc-miR-490"       
+> 
+> ##vector con la version ultima
+> id2mirLast <- id2mir20
+> 
+> ##just forchecking
+> to19version <- buildVersion (19)
+
+  43 IDs do not have a unique conversion to mirBase version 19;
+  they will be removed.
+
+Excluded conversions are:
+      [,1]               [,2]                
+ [1,] "bmo-miR-1"        "bmo-miR-1a-3p"     
+ [2,] "bmo-miR-1"        "bmo-miR-1b-3p"     
+ [3,] "bmo-miR-965"      "bmo-miR-965-3p"    
+ [4,] "bmo-miR-965"      "bmo-miR-965-5p"    
+ [5,] "bta-miR-193a"     "bta-miR-193a-3p"   
+ [6,] "bta-miR-193a"     "bta-miR-193a"      
+ [7,] "bta-miR-24"       "bta-miR-24-3p"     
+ [8,] "bta-miR-24"       "bta-miR-24"        
+ [9,] "dme-miR-10"       "dme-miR-10-5p"     
+[10,] "dme-miR-10"       "dme-miR-10-3p"     
+[11,] "hsa-miR-499a-3p"  "hsa-miR-499b-3p"   
+[12,] "hsa-miR-499a-3p"  "hsa-miR-499a-3p"   
+[13,] "hsa-miR-499a-5p"  "hsa-miR-499b-5p"   
+[14,] "hsa-miR-499a-5p"  "hsa-miR-499a-5p"   
+[15,] "kshv-miR-K12-12"  "kshv-miR-K12-12-5p"
+[16,] "kshv-miR-K12-12"  "kshv-miR-K12-12-3p"
+[17,] "kshv-miR-K12-12*" "kshv-miR-K12-12-3p"
+[18,] "kshv-miR-K12-12*" "kshv-miR-K12-12-5p"
+[19,] "mdv1-miR-M7"      "mdv1-miR-M7-5p"    
+[20,] "mdv1-miR-M7"      "mdv1-miR-M7-3p"    
+[21,] "mdv1-miR-M7*"     "mdv1-miR-M7-3p"    
+[22,] "mdv1-miR-M7*"     "mdv1-miR-M7-5p"    
+[23,] "mtr-miR169b"      "mtr-miR169b"       
+[24,] "mtr-miR169b"      "mtr-miR169j"       
+[25,] "mtr-miR169j"      "mtr-miR169j"       
+[26,] "mtr-miR169j"      "mtr-miR169q"       
+[27,] "mtr-miR169k"      "mtr-miR169k"       
+[28,] "mtr-miR169k"      "mtr-miR169p"       
+[29,] "mtr-miR171g"      "mtr-miR171g"       
+[30,] "mtr-miR171g"      "mtr-miR171i"       
+[31,] "mtr-miR2111b"     "mtr-miR2111b"      
+[32,] "mtr-miR2111b"     "mtr-miR2111c"      
+[33,] "mtr-miR2111c"     "mtr-miR2111c"      
+[34,] "mtr-miR2111c"     "mtr-miR2111h"      
+[35,] "mtr-miR2111f"     "mtr-miR2111f"      
+[36,] "mtr-miR2111f"     "mtr-miR2111u"      
+[37,] "mtr-miR2111h"     "mtr-miR2111h"      
+[38,] "mtr-miR2111h"     "mtr-miR2111n"      
+[39,] "mtr-miR2111i"     "mtr-miR2111i"      
+[40,] "mtr-miR2111i"     "mtr-miR2111o"      
+[41,] "mtr-miR2111j"     "mtr-miR2111j"      
+[42,] "mtr-miR2111j"     "mtr-miR2111e"      
+[43,] "mtr-miR2111k"     "mtr-miR2111k"      
+[44,] "mtr-miR2111k"     "mtr-miR2111f"      
+[45,] "mtr-miR2111l"     "mtr-miR2111l"      
+[46,] "mtr-miR2111l"     "mtr-miR2111t"      
+[47,] "mtr-miR2111n"     "mtr-miR2111n"      
+[48,] "mtr-miR2111n"     "mtr-miR2111r"      
+[49,] "mtr-miR2111o"     "mtr-miR2111o"      
+[50,] "mtr-miR2111o"     "mtr-miR2111s"      
+[51,] "mtr-miR2592a"     "mtr-miR2592a.2-3p" 
+[52,] "mtr-miR2592a"     "mtr-miR2592a-3p"   
+[53,] "mtr-miR2606c"     "mtr-miR2606c"      
+[54,] "mtr-miR2606c"     "mtr-miR2606d"      
+[55,] "mtr-miR395k"      "mtr-miR395k"       
+[56,] "mtr-miR395k"      "mtr-miR395p"       
+[57,] "osa-miR166j-3p"   "osa-miR166j-3p"    
+[58,] "osa-miR166j-3p"   "osa-miR166n-3p"    
+[59,] "osa-miR166j-5p"   "osa-miR166j-5p"    
+[60,] "osa-miR166j-5p"   "osa-miR166n-5p"    
+[61,] "osa-miR396d"      "osa-miR396d"       
+[62,] "osa-miR396d"      "osa-miR396i"       
+[63,] "osa-miR439i"      "osa-miR439i"       
+[64,] "osa-miR439i"      "osa-miR439j"       
+[65,] "osa-miR827"       "osa-miR827c"       
+[66,] "osa-miR827"       "osa-miR827a"       
+[67,] "ptc-miR159c"      "ptc-miR159c"       
+[68,] "ptc-miR159c"      "ptc-miR159f"       
+[69,] "ptc-miR171j"      "ptc-miR171j"       
+[70,] "ptc-miR171j"      "ptc-miR171n"       
+[71,] "ptc-miR399c"      "ptc-miR399c"       
+[72,] "ptc-miR399c"      "ptc-miR399k"       
+[73,] "ptc-miR399e"      "ptc-miR399e"       
+[74,] "ptc-miR399e"      "ptc-miR399l"       
+[75,] "ptc-miR478n"      "ptc-miR478n"       
+[76,] "ptc-miR478n"      "ptc-miR478u"       
+[77,] "ptc-miR481d"      "ptc-miR481d"       
+[78,] "ptc-miR481d"      "ptc-miR481e"       
+[79,] "ssc-miR-196b"     "ssc-miR-196b-5p"   
+[80,] "ssc-miR-196b"     "ssc-miR-196b"      
+[81,] "ssc-miR-218"      "ssc-miR-218-3p"    
+[82,] "ssc-miR-218"      "ssc-miR-218"       
+[83,] "ssc-miR-339"      "ssc-miR-339-5p"    
+[84,] "ssc-miR-339"      "ssc-miR-339"       
+[85,] "ssc-miR-490"      "ssc-miR-490-5p"    
+[86,] "ssc-miR-490"      "ssc-miR-490"       
+> table (to19version == id2mir19)  ##OK 
+
+ TRUE 
+32596 
+> 
+> 
+> ###SALVAMOS
+> save (list = "mirIDmat",   file = file.path (.job$dir$data, "mirIDmat.RData"), compress = "xz")
+> save (list = "id2mir19",   file = file.path (.job$dir$data, "id2mir19.RData"), compress = "xz")
+> save (list = "id2mir20",   file = file.path (.job$dir$data, "id2mir20.RData"), compress = "xz")
+> save (list = "id2mirLast", file = file.path (.job$dir$data, "id2mirLast.RData"), compress = "xz")
+> 
+> ## write.table (cbind (names (id2mir19), id2mir19), file = "id2mir19.txt",
+> ##              append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+> 
+> ## write.table (cbind (names (id2mir20), id2mir19), file = "id2mir20.txt",
+> ##              append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 3.0.2 (2013-09-25)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+ 82.313   0.324  82.872 
