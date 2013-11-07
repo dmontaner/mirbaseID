@@ -1,3 +1,4 @@
 export(buildVersion)
+export(guessVersion)
 export(idConvert)
 export(mirbVersions)

@@ -1,7 +1,7 @@
 Package: mirbaseID
 Type: Package
 Title: miRBase ID conversion.
-Version: 0.0.1
+Version: 0.0.2
 Date: 2013-10-31
 Author: David Montaner <dmontaner@cipf.es>
 Maintainer: David Montaner <dmontaner@cipf.es>
