@@ -4,5 +4,5 @@
 
 .job <- list ()
 .job$dir <- list ()
-.job$dir$tmp  <- "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data_download/tmp"
+.job$dir$tmp  <- "/home/dmontaner/programas/mislibrerias/mirbaseID/data_tmp"
 .job$dir$data <- "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data"
