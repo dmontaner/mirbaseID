@@ -29,7 +29,7 @@ Type 'q()' to quit R.
 > ## for this subset of files is non-existent - use at your peril!
 > 
 > date ()
-[1] "Mon Nov  4 14:54:55 2013"
+[1] "Fri Nov  8 18:09:47 2013"
 > Sys.info ()[c("nodename", "user")]
    nodename        user 
    "laptop" "dmontaner" 
@@ -50,7 +50,7 @@ Type 'q()' to quit R.
 > try (source ("job.r")); try (.job)
 $dir
 $dir$tmp
-[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data_download/tmp"
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/data_tmp"
 
 $dir$data
 [1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data"
@@ -288,4 +288,4 @@ attached base packages:
 > q ("no")
 > proc.time()
    user  system elapsed 
-  1.556   0.188  10.956 
+  1.692   0.152  12.522 

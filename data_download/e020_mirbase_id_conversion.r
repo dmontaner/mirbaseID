@@ -248,8 +248,9 @@ names (id2mir19) <- mat[,1]
 
 
 ##CONSTRUIMOS el vectores de conversion a la version 20
-source (file.path ("../../R", "mirbVersions.r"))
-source (file.path ("../../R", "buildVersion.r"))
+source (file.path (.job$dir$code, "mirbVersions.r"))
+source (file.path (.job$dir$code, "buildVersion.r"))
+
 id2mir20 <- buildVersion (20)
 
 ##vector con la version ultima

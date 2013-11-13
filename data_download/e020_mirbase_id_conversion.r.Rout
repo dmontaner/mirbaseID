@@ -34,7 +34,7 @@ Type 'q()' to quit R.
 > ## we use compress = "xz" when saving the data
 > 
 > date ()
-[1] "Mon Nov  4 14:55:39 2013"
+[1] "Fri Nov  8 18:34:44 2013"
 > Sys.info ()[c("nodename", "user")]
    nodename        user 
    "laptop" "dmontaner" 
@@ -54,10 +54,13 @@ Type 'q()' to quit R.
 > try (source ("job.r")); try (.job)
 $dir
 $dir$tmp
-[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data_download/tmp"
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/data_tmp"
 
 $dir$data
 [1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data"
+
+$dir$code
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/R"
 
 
 > 
@@ -65,7 +68,9 @@ $dir$data
 > 
 > setwd (file.path (.job$dir$tmp))
 > dir ()
- [1] "11" "12" "13" "14" "15" "16" "17" "18" "19" "20"
+ [1] "11"         "12"         "13"         "14"         "15"        
+ [6] "16"         "17"         "18"         "19"         "20"        
+[11] "mirtarbase" "targetscan"
 > 
 > directorios <- 11:20
 > 
@@ -858,8 +863,9 @@ FALSE  TRUE
 > 
 > 
 > ##CONSTRUIMOS el vectores de conversion a la version 20
-> source (file.path ("../../R", "mirbVersions.r"))
-> source (file.path ("../../R", "buildVersion.r"))
+> source (file.path (.job$dir$code, "mirbVersions.r"))
+> source (file.path (.job$dir$code, "buildVersion.r"))
+> 
 > id2mir20 <- buildVersion (20)
 
   25 IDs do not have a unique conversion to mirBase version 20;
@@ -1053,4 +1059,4 @@ attached base packages:
 > q ("no")
 > proc.time()
    user  system elapsed 
- 82.313   0.324  82.872 
+ 84.321   0.416  84.971 
