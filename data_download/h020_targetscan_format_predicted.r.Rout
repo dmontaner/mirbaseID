@@ -1,0 +1,481 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##h020_targetscan_format_predicted.r
+> ##2013-11-07 dmontaner@cipf.es
+> ##Prepare microRNA targets from TargetScan Human
+> 
+> ##' As I am working with the Human dataset,
+> ##' I am guessing that the Species.ID refers to the miRNA
+> ##' and that all genes are human.
+> 
+> date ()
+[1] "Fri Nov 15 01:11:04 2013"
+> Sys.info ()[c("nodename", "user")]
+   nodename        user 
+   "laptop" "dmontaner" 
+> commandArgs ()
+[1] "/usr/local/lib/R/bin/exec/R"                                                                                
+[2] "-f"                                                                                                         
+[3] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data_download/h020_targetscan_format_predicted.r"
+[4] "--restore"                                                                                                  
+[5] "--save"                                                                                                     
+[6] "--no-readline"                                                                                              
+[7] "--no-save"                                                                                                  
+[8] "--no-restore"                                                                                               
+> rm (list = ls ())
+> R.version.string ##"R version 3.0.2 (2013-09-25)"
+[1] "R version 3.0.2 (2013-09-25)"
+> library (mdgsa); packageDescription ("mdgsa", fields = "Version") #"0.3.2"
+Loading required package: DBI
+Loading required package: AnnotationDbi
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following object is masked from ‘package:stats’:
+
+    xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, as.data.frame, cbind, colnames, duplicated, eval,
+    Filter, Find, get, intersect, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rep.int, rownames, sapply, setdiff, sort, table,
+    tapply, union, unique, unlist
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+
+KEGG.db contains mappings based on older data because the original
+  resource was removed from the the public domain before the most
+  recent update was produced. This package should now be considered
+  deprecated and future versions of Bioconductor may not have it
+  available.  Users who want more current data are encouraged to look
+  at the KEGGREST or reactome.db packages
+
+[1] "0.3.2"
+> 
+> try (source ("job.r")); try (.job)
+$dir
+$dir$tmp
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/data_tmp"
+
+$dir$data
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data"
+
+$dir$code
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/R"
+
+
+> 
+> load (file.path (.job$dir$tmp, "hgnc", "hgnc2latest.RData"))
+> ls ()
+[1] "hgnc2latest"
+> 
+> 
+> ##' Family Info
+> ##' ============================================================================
+> 
+> system.time (fam <- read.table (file = file.path (.job$dir$tmp, "targetscan", "miR_Family_Info.txt"),
++                                 header = TRUE, sep = "\t", quote = "", colClasses = "character"))
+   user  system elapsed 
+  0.052   0.000   0.052 
+> 
+> colnames (fam)[1] <- "miR.Family"
+> dim (fam)
+[1] 6120    7
+> colnames (fam)
+[1] "miR.Family"           "Seed.m8"              "Species.ID"          
+[4] "MiRBase.ID"           "Mature.sequence"      "Family.Conservation."
+[7] "MiRBase.Accession"   
+> fam[1:3,]
+          miR.Family Seed.m8 Species.ID MiRBase.ID        Mature.sequence
+1 let-7/98/4458/4500 GAGGUAG       9606 hsa-let-7a UGAGGUAGUAGGUUGUAUAGUU
+2 let-7/98/4458/4500 GAGGUAG       9606 hsa-let-7b UGAGGUAGUAGGUUGUGUGGUU
+3 let-7/98/4458/4500 GAGGUAG       9606 hsa-let-7c UGAGGUAGUAGGUUGUAUGGUU
+  Family.Conservation. MiRBase.Accession
+1                    2      MIMAT0000062
+2                    2      MIMAT0000063
+3                    2      MIMAT0000064
+> 
+> fam <- fam[,c("miR.Family", "Species.ID", "MiRBase.ID", "MiRBase.Accession")]
+> 
+> table (duplicated (fam))
+
+FALSE 
+ 6120 
+> table (duplicated (fam[,"MiRBase.Accession"]))  ##OK no duplicated
+
+FALSE 
+ 6120 
+> table (duplicated (fam[,"MiRBase.ID"]))         ##OK no duplicated; one to one relationship between them.
+
+FALSE 
+ 6120 
+> 
+> table (fam[,"Species.ID"]) ##many species
+
+10090 10116 13616  8364  9031  9258  9544  9598  9606  9615  9796  9913 
+  779   438   144   156   467   306   485   524  1539   288   360   634 
+> 
+> ##table (fam[,"MiRBase.ID"] %in% mirIDmat)  ## OK all in
+> ##guessVersion (fam[,"MiRBase.ID"])         ## seems to be 17
+> 
+> 
+> 
+> ##' Predicted_Targets_Info.txt 
+> ##' ============================================================================
+> 
+> system.time (tgt <- read.table (file = file.path (.job$dir$tmp, "targetscan", "Predicted_Targets_Info.txt"),
++                                 header = TRUE, sep = "\t", quote = "", colClasses = "character"))
+   user  system elapsed 
+ 24.205   0.520  24.801 
+> 
+> dim (tgt)
+[1] 2393543      11
+> #system.time (table (duplicated (tgt))) ##OK no duplicated
+> colnames (tgt)
+ [1] "miR.Family"    "Gene.ID"       "Gene.Symbol"   "Transcript.ID"
+ [5] "Species.ID"    "UTR.start"     "UTR.end"       "MSA.start"    
+ [9] "MSA.end"       "Seed.match"    "PCT"          
+> tgt[1:3,]
+          miR.Family Gene.ID Gene.Symbol Transcript.ID Species.ID UTR.start
+1 let-7/98/4458/4500   29974        A1CF  NM_001198819       9913      3248
+2 let-7/98/4458/4500   29974        A1CF  NM_001198819       9598      3283
+3 let-7/98/4458/4500   29974        A1CF  NM_001198818      30611      3300
+  UTR.end MSA.start MSA.end Seed.match  PCT
+1    3255      4796    4809       8mer 0.00
+2    3290      4796    4809       8mer 0.00
+3    3307      4800    4809       8mer 0.00
+> 
+> tgt <- tgt[,c("miR.Family", "Species.ID", "Gene.ID", "Gene.Symbol", "Transcript.ID")]
+> gc ()
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  2059672 110.0    3094291 165.3  2403845 128.4
+Vcells 14610590 111.5   47494689 362.4 58344642 445.2
+> gc ()
+           used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells  2059679 110.0    3094291 165.3  2403845 128.4
+Vcells 14610617 111.5   47494689 362.4 58344642 445.2
+> tgt[1:3,]
+          miR.Family Species.ID Gene.ID Gene.Symbol Transcript.ID
+1 let-7/98/4458/4500       9913   29974        A1CF  NM_001198819
+2 let-7/98/4458/4500       9598   29974        A1CF  NM_001198819
+3 let-7/98/4458/4500      30611   29974        A1CF  NM_001198818
+> 
+> system.time (dup <- duplicated (tgt))
+   user  system elapsed 
+ 10.888   0.092  11.014 
+> table (dup)
+dup
+  FALSE    TRUE 
+2173300  220243 
+> 
+> tgt <- tgt[!dup,]
+> dim (tgt)
+[1] 2173300       5
+> 
+> table (lat = tgt[,"Gene.Symbol"] %in% hgnc2latest,
++        nam = tgt[,"Gene.Symbol"] %in% names (hgnc2latest))
+       nam
+lat       FALSE    TRUE
+  FALSE    5748   61954
+  TRUE        0 2105598
+> 
+> touse <- (!tgt[,"Gene.Symbol"] %in% hgnc2latest) & (!tgt[,"Gene.Symbol"] %in% names (hgnc2latest))
+> table (touse)
+touse
+  FALSE    TRUE 
+2167552    5748 
+> 
+> table (lat = toupper (tgt[touse, "Gene.Symbol"]) %in% hgnc2latest,           ## OK no problem with lower case
++        nam = toupper (tgt[touse, "Gene.Symbol"]) %in% names (hgnc2latest))
+       nam
+lat     FALSE
+  FALSE  5748
+> 
+> system.time (tgt[,"mySymbol"] <- hgnc2latest[tgt[,"Gene.Symbol"]])
+   user  system elapsed 
+ 46.126   0.032  46.295 
+> table (is.na (tgt[,"mySymbol"]))
+
+  FALSE    TRUE 
+2167552    5748 
+> 
+> tgt <- tgt[!is.na (tgt[,"mySymbol"]),]
+> dim (tgt)
+[1] 2167552       6
+> 
+> 
+> ##' Merge
+> ##' ============================================================================
+> 
+> dim (fam)
+[1] 6120    4
+> dim (tgt)
+[1] 2167552       6
+> 
+> fam[1:3,]
+          miR.Family Species.ID MiRBase.ID MiRBase.Accession
+1 let-7/98/4458/4500       9606 hsa-let-7a      MIMAT0000062
+2 let-7/98/4458/4500       9606 hsa-let-7b      MIMAT0000063
+3 let-7/98/4458/4500       9606 hsa-let-7c      MIMAT0000064
+> tgt[1:3,]
+          miR.Family Species.ID Gene.ID Gene.Symbol Transcript.ID mySymbol
+1 let-7/98/4458/4500       9913   29974        A1CF  NM_001198819     A1CF
+2 let-7/98/4458/4500       9598   29974        A1CF  NM_001198819     A1CF
+3 let-7/98/4458/4500      30611   29974        A1CF  NM_001198818     A1CF
+> 
+> system.time (combi <- merge (fam, tgt))
+   user  system elapsed 
+ 52.095   0.196  52.434 
+> dim (combi) # smaller ????
+[1] 2062203       8
+> combi[1:10,]
+           miR.Family Species.ID MiRBase.ID MiRBase.Accession Gene.ID
+1  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   22893
+2  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383    7327
+3  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   64131
+4  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383    4301
+5  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383  730094
+6  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383    3930
+7  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383    8773
+8  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   84068
+9  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383    9253
+10 let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   64782
+   Gene.Symbol Transcript.ID mySymbol
+1        BAHD1     NM_014952    BAHD1
+2       UBE2G2     NM_182688   UBE2G2
+3        XYLT1     NM_022166    XYLT1
+4        MLLT4  NM_001040000    MLLT4
+5     C16orf52  NM_001164579 C16orf52
+6          LBR     NM_194442      LBR
+7       SNAP23     NM_130798   SNAP23
+8      SLC10A7  NM_001029998  SLC10A7
+9        NUMBL     NM_004756    NUMBL
+10         AEN     NM_022767      AEN
+> table (duplicated (combi))  #OK no dup
+
+  FALSE 
+2062203 
+> 
+> 
+> ##' miRNA to gene
+> ##' ============================================================================
+> combi.g <- combi[,c("Species.ID", "MiRBase.Accession", "mySymbol")]
+> dup <- duplicated (combi.g)
+> table (dup)
+dup
+  FALSE    TRUE 
+1146551  915652 
+> combi.g <- combi.g[!dup,]
+> combi.g[1:3,]
+  Species.ID MiRBase.Accession mySymbol
+1      10090      MIMAT0000383    BAHD1
+2      10090      MIMAT0000383   UBE2G2
+3      10090      MIMAT0000383    XYLT1
+> 
+> table (duplicated (combi.g[,c("MiRBase.Accession", "mySymbol")]))  ##OK no duplicated: the ACCESSION id implies the species.
+
+  FALSE 
+1146551 
+> 
+> combi.g <- combi.g[,c("mySymbol", "MiRBase.Accession")]
+> dim (combi.g)
+[1] 1146551       2
+> table (duplicated (combi.g))
+
+  FALSE 
+1146551 
+>        
+> length (unique (combi.g[,c("MiRBase.Accession")]))
+[1] 2318
+> 
+> 
+> ##' list format
+> system.time (acc2geneTS <- annotMat2list (combi.g))
+   user  system elapsed 
+ 11.112   0.004  11.148 
+> 
+> table (sapply (acc2geneTS, function (x) sum (duplicated (x))))  #OK no duplicates
+
+   0 
+2318 
+> 
+> lapply (acc2geneTS[1:3], head)
+$MIMAT0000062
+[1] "PPP1R15B" "LMX1A"    "SLC37A4"  "AFF2"     "EIF4G2"   "DAGLA"   
+
+$MIMAT0000063
+[1] "PPP1R15B" "LMX1A"    "SLC37A4"  "AFF2"     "EIF4G2"   "DAGLA"   
+
+$MIMAT0000064
+[1] "PPP1R15B" "LMX1A"    "SLC37A4"  "AFF2"     "EIF4G2"   "DAGLA"   
+
+> lapply (acc2geneTS[100:103], head)
+$MIMAT0000236
+[1] "MORF4L2" "CUL2"    "RBM25"   "ATP10D"  "ELOVL6"  "SETBP1" 
+
+$MIMAT0000237
+[1] "RIN3"    "C5orf63" "ESRRG"   "TBL1X"   "SLITRK4" "ZNRF3"  
+
+$MIMAT0000238
+[1] "AP1AR"   "HNRNPH3" "ZFP57"   "SEPT9"   "SIAH1"   "EZR"    
+
+$MIMAT0000239
+[1] "PPP2R5A"  "NFATC3"   "PTPRD"    "C5orf51"  "SLC39A10" "DDX17"   
+
+> 
+> 
+> 
+> ##' miRNA to transcript
+> ##' ============================================================================
+> combi.t <- combi[,c("Species.ID", "MiRBase.Accession", "Transcript.ID")]
+> dup <- duplicated (combi.t)
+> table (dup)
+dup
+  FALSE 
+2062203 
+> combi.t <- combi.t[!dup,]
+> combi.t[1:3,]
+  Species.ID MiRBase.Accession Transcript.ID
+1      10090      MIMAT0000383     NM_014952
+2      10090      MIMAT0000383     NM_182688
+3      10090      MIMAT0000383     NM_022166
+> 
+> table (duplicated (combi.t[,c("MiRBase.Accession", "Transcript.ID")]))  ##OK no duplicated: the ACCESSION id implies the species.
+
+  FALSE 
+2062203 
+> 
+> combi.t <- combi.t[,c("Transcript.ID", "MiRBase.Accession")]
+> dim (combi.t)
+[1] 2062203       2
+> 
+> length (unique (combi.t[,c("MiRBase.Accession")]))
+[1] 2318
+> 
+> 
+> ##' list format
+> system.time (acc2tranTS <- annotMat2list (combi.t))
+   user  system elapsed 
+ 36.598   0.000  36.715 
+> 
+> table (sapply (acc2tranTS, function (x) sum (duplicated (x))))  #OK no duplicates
+
+   0 
+2318 
+> 
+> lapply (acc2tranTS[1:3], head)
+$MIMAT0000062
+[1] "NM_032833"    "NM_001174069" "NM_001164279" "NM_001169125" "NM_001042559"
+[6] "NM_006133"   
+
+$MIMAT0000063
+[1] "NM_032833"    "NM_001174069" "NM_001164279" "NM_001169125" "NM_001042559"
+[6] "NM_006133"   
+
+$MIMAT0000064
+[1] "NM_032833"    "NM_001174069" "NM_001164279" "NM_001169125" "NM_001042559"
+[6] "NM_006133"   
+
+> lapply (acc2tranTS[100:103], head)
+$MIMAT0000236
+[1] "NM_001142420" "NM_001198777" "NM_021239"    "NM_020453"    "NM_024090"   
+[6] "NM_015559"   
+
+$MIMAT0000237
+[1] "NM_024832"    "NM_001164478" "NM_206595"    "NM_005647"    "NM_173078"   
+[6] "NM_001206998"
+
+$MIMAT0000238
+[1] "NM_018569"    "NM_021644"    "NM_001109809" "NM_001113491" "NM_001006610"
+[6] "NM_001111077"
+
+$MIMAT0000239
+[1] "NM_006243"    "NM_173165"    "NM_001171025" "NM_175921"    "NM_001127257"
+[6] "NM_001098504"
+
+> 
+> 
+> 
+> ##' SAVE
+> ##' ============================================================================
+> 
+> acc2geneTSp <- acc2geneTS
+> acc2tranTSp <- acc2tranTS
+> 
+> setwd (.job$dir$data)
+> dir ()
+ [1] "acc2geneMTB.RData"            "acc2geneTSc.RData"           
+ [3] "acc2geneTSp.RData"            "acc2tranTSc.RData"           
+ [5] "acc2tranTSp.RData"            "id2accession.RData"          
+ [7] "id2mir19.RData"               "id2mir20.RData"              
+ [9] "id2mirLast.RData"             "miRBaseDownloadDate.RData"   
+[11] "mirIDmat.RData"               "miRTarBaseDownloadDate.RData"
+[13] "targetScanDownloadDate.RData"
+> 
+> save (list = "acc2geneTSp", file = "acc2geneTSp.RData", compress = "xz")
+> save (list = "acc2tranTSp", file = "acc2tranTSp.RData", compress = "xz")
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 3.0.2 (2013-09-25)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] mdgsa_0.3.2          AnnotationDbi_1.22.6 Biobase_2.20.1      
+[4] BiocGenerics_0.6.0   RSQLite_0.11.4       DBI_0.2-7           
+
+loaded via a namespace (and not attached):
+[1] cluster_1.14.4  GO.db_2.9.0     grid_3.0.2      IRanges_1.18.4 
+[5] KEGG.db_2.9.1   lattice_0.20-24 Matrix_1.0-14   stats4_3.0.2   
+> q ("no")
+> proc.time()
+   user  system elapsed 
+261.076   1.532 263.385 

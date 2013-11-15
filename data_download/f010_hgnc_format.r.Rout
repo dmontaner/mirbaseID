@@ -1,0 +1,212 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ##h010_hgnc_format.r
+> ##2013-11-14 dmontaner@cipf.es
+> ##Format Gene Symbol
+> 
+> ##' Some Gene Symbol IDs in the mirna targets need to be updated
+> 
+> date ()
+[1] "Fri Nov 15 00:40:14 2013"
+> Sys.info ()[c("nodename", "user")]
+   nodename        user 
+   "laptop" "dmontaner" 
+> commandArgs ()
+[1] "/usr/local/lib/R/bin/exec/R"                                                                
+[2] "-f"                                                                                         
+[3] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data_download/f010_hgnc_format.r"
+[4] "--restore"                                                                                  
+[5] "--save"                                                                                     
+[6] "--no-readline"                                                                              
+[7] "--no-save"                                                                                  
+[8] "--no-restore"                                                                               
+> rm (list = ls ())
+> R.version.string ##"R version 3.0.2 (2013-09-25)"
+[1] "R version 3.0.2 (2013-09-25)"
+> #library (mirbaseID); packageDescription ("mirbaseID", fields = "Version") #"0.0.2"
+> #library (mdgsa); packageDescription ("mdgsa", fields = "Version") #"0.3.2"
+> #help (package = mirbaseID)
+> 
+> try (source ("job.r")); try (.job)
+$dir
+$dir$tmp
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/data_tmp"
+
+$dir$data
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/data"
+
+$dir$code
+[1] "/home/dmontaner/programas/mislibrerias/mirbaseID/mirbaseID/R"
+
+
+> 
+> 
+> ##' ============================================================================
+> 
+> hgnc <- read.table (file = file.path (.job$dir$tmp, "hgnc", "mart_export_hgnc.txt"),
++                      header = TRUE, sep = "\t", quote = "", colClasses = "character", comment.char = "")
+> 
+> dim (hgnc)
+[1] 41756     3
+> colnames (hgnc)
+[1] "Approved.Symbol"  "Previous.Symbols" "Aliases"         
+> hgnc[1:3,]
+  Approved.Symbol Previous.Symbols  Aliases
+1         HSPA8P4                          
+2        PABPC1P4  PABPL2, PABPCP5         
+3          TCEAL7                  MGC23947
+> 
+> table (duplicated (hgnc[,"Approved.Symbol"])) ##OK no duplicated
+
+FALSE 
+41756 
+> 
+> touse <- grep ("~", hgnc[,"Approved.Symbol"])
+> length (touse)
+[1] 3810
+> hgnc[touse,][1:10,]
+       Approved.Symbol Previous.Symbols Aliases
+7      EWSR2~withdrawn                         
+11     EGFL2~withdrawn                         
+27        LD~withdrawn                         
+31      MER2~withdrawn                         
+35     NHE3P~withdrawn                         
+69      ESTF~withdrawn                         
+71     OR1E5~withdrawn                         
+77  C17orf12~withdrawn                         
+99   MIR1201~withdrawn                         
+102    RPML3~withdrawn                         
+> unique (hgnc[touse, c ("Previous.Symbols", "Aliases")]) ## OK empty
+  Previous.Symbols Aliases
+7                         
+> hgnc <- hgnc[-touse,]
+> dim (hgnc)
+[1] 37946     3
+> 
+> table (hgnc[,"Approved.Symbol"] == "") ##OK no empty
+
+FALSE 
+37945 
+> 
+> table (hgnc[,"Approved.Symbol"] == toupper (hgnc[,"Approved.Symbol"])) 
+
+FALSE  TRUE 
+  657 37288 
+> setdiff (hgnc[,"Approved.Symbol"], toupper (hgnc[,"Approved.Symbol"]))[1:10]
+ [1] "C11orf68"  "C17orf47"  "C18orf63"  "C17orf100" "C17orf78"  "C12orf43" 
+ [7] "C14orf105" "C19orf66"  "C10orf120" "C2orf80"  
+> grep ("ORF", hgnc[,"Approved.Symbol"], value = TRUE)
+ [1] "MORF4L1P4"    "MORF4L1P1"    "ZHX1-C8ORF76" "MORF4L1P7"    "MORF4L2"     
+ [6] "MORF4L1P5"    "MORF4L2P1"    "MORF4"        "MORF4L2-AS1"  "MORF4L1P6"   
+[11] "MORF4L1"      "MORF4L1P2"    "MORF4L1P3"   
+> 
+> 
+> 
+> ##' Aliases
+> ##' ----------------------------------------------------------------------------
+> alias <- hgnc[,c ("Approved.Symbol", "Aliases")]
+> touse <- alias[,"Aliases"] != ""
+> alias <- alias[touse,]
+> 
+> alias.li <- strsplit (alias[,"Aliases"], ", ")
+> alias.lo <- sapply (alias.li, length)
+> 
+> alias.ma <- cbind (from = unlist (alias.li), to = rep (alias[,"Approved.Symbol"], times = alias.lo))
+> table (duplicated (alias.ma))
+
+FALSE 
+38063 
+> table (duplicated (alias.ma[,"from"]))
+
+FALSE  TRUE 
+36907  1156 
+> 
+> 
+> ##' Previous.Symbols
+> ##' ----------------------------------------------------------------------------
+> previ <- hgnc[,c ("Approved.Symbol", "Previous.Symbols")]
+> touse <- previ[,"Previous.Symbols"] != ""
+> previ <- previ[touse,]
+> 
+> previ.li <- strsplit (previ[,"Previous.Symbols"], ", ")
+> previ.lo <- sapply (previ.li, length)
+> 
+> previ.ma <- cbind (from = unlist (previ.li), to = rep (previ[,"Approved.Symbol"], times = previ.lo))
+> table (duplicated (previ.ma))
+
+FALSE 
+12031 
+> table (duplicated (previ.ma[,"from"]))
+
+FALSE  TRUE 
+11902   129 
+> 
+> ##' Combine
+> ##' ----------------------------------------------------------------------------
+> 
+> mat <- cbind (from = hgnc[,"Approved.Symbol"], to = hgnc[,"Approved.Symbol"])
+> mat <- rbind (mat, previ.ma, alias.ma)
+> dim (mat)
+[1] 88040     2
+> table (duplicated (mat))
+
+FALSE 
+88040 
+> dup <- duplicated (mat[,"from"])
+> table (dup)
+dup
+FALSE  TRUE 
+85847  2193 
+> mat <- mat[!dup,]
+> 
+> hgnc2latest <- mat[,"to"]
+> names (hgnc2latest) <- mat[,"from"]
+> 
+> 
+> ##' SAVE
+> ##' ============================================================================
+> 
+> setwd (file.path (.job$dir$tmp, "hgnc"))
+> dir ()
+[1] "mart_export_hgnc.txt"
+> 
+> save (list = "hgnc2latest", file = "hgnc2latest.RData")  ## not to be included in the library
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 3.0.2 (2013-09-25)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+> q ("no")
+> proc.time()
+   user  system elapsed 
+  3.204   0.040   3.280 
