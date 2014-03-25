@@ -26,7 +26,7 @@ Type 'q()' to quit R.
 > ##' and that all genes are human.
 > 
 > date ()
-[1] "Fri Nov 15 01:19:47 2013"
+[1] "Fri Nov 15 02:07:37 2013"
 > Sys.info ()[c("nodename", "user")]
    nodename        user 
    "laptop" "dmontaner" 
@@ -110,7 +110,7 @@ $dir$code
 > system.time (fam <- read.table (file = file.path (.job$dir$tmp, "targetscan", "miR_Family_Info.txt"),
 +                                 header = TRUE, sep = "\t", quote = "", colClasses = "character"))
    user  system elapsed 
-  0.028   0.004   0.031 
+  0.028   0.000   0.031 
 > 
 > colnames (fam)[1] <- "miR.Family"
 > dim (fam)
@@ -160,7 +160,7 @@ FALSE
 > system.time (tgt <- read.table (file = file.path (.job$dir$tmp, "targetscan", "Conserved_Family_Info.txt"),
 +                                 header = TRUE, sep = "\t", quote = "", colClasses = "character"))
    user  system elapsed 
- 89.658   3.108  93.842 
+ 90.934   3.176  94.409 
 > 
 > dim (tgt)
 [1] 14650895       11
@@ -196,7 +196,7 @@ Vcells 75923977 579.3  218560574 1667.5 339656557 2591.4
 > 
 > system.time (dup <- duplicated (tgt))
    user  system elapsed 
-116.975   0.808 118.114 
+119.195   1.120 120.687 
 > table (dup)
 dup
    FALSE     TRUE 
@@ -225,4 +225,266 @@ touse
 lat     FALSE
   FALSE 42309
 > 
-> system.time (tgt[,"mySymbol"] <- hgnc2latest[tgt[,"Gene.Symbol"]])
+> 
+> tgt[,"mySymbol"] <- NA
+> touse <- tgt[,"Gene.Symbol"] %in% hgnc2latest
+> table (touse)
+touse
+   FALSE     TRUE 
+  412704 11154061 
+> tgt[touse, "mySymbol"] <- tgt[touse, "Gene.Symbol"]
+> 
+> system.time (tgt[!touse, "mySymbol"] <- hgnc2latest[tgt[!touse, "Gene.Symbol"]])
+   user  system elapsed 
+ 81.633   0.584  82.425 
+> table (is.na (tgt[,"mySymbol"]))
+
+   FALSE     TRUE 
+11524456    42309 
+> 
+> tgt <- tgt[!is.na (tgt[,"mySymbol"]),]
+> dim (tgt)
+[1] 11524456        6
+> 
+> 
+> ##' Merge
+> ##' ============================================================================
+> 
+> dim (fam)
+[1] 6120    4
+> dim (tgt)
+[1] 11524456        6
+> 
+> fam[1:3,]
+          miR.Family Species.ID MiRBase.ID MiRBase.Accession
+1 let-7/98/4458/4500       9606 hsa-let-7a      MIMAT0000062
+2 let-7/98/4458/4500       9606 hsa-let-7b      MIMAT0000063
+3 let-7/98/4458/4500       9606 hsa-let-7c      MIMAT0000064
+> tgt[1:3,]
+        miR.Family Species.ID Gene.ID Gene.Symbol Transcript.ID mySymbol
+1     miR-22/22-3p       9615       1        A1BG     NM_130786     A1BG
+2 miR-23abc/23b-3p       9606       1        A1BG     NM_130786     A1BG
+3 miR-23abc/23b-3p       9615       1        A1BG     NM_130786     A1BG
+> 
+> system.time (combi <- merge (fam, tgt))
+   user  system elapsed 
+255.076   4.160 260.026 
+> dim (combi) # smaller ????
+[1] 8843237       8
+> combi[1:10,]
+           miR.Family Species.ID MiRBase.ID MiRBase.Accession Gene.ID
+1  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   22858
+2  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383    5178
+3  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383  389649
+4  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   56996
+5  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383    5178
+6  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383    7057
+7  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   51225
+8  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   10413
+9  let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   80352
+10 let-7/98/4458/4500      10090 mmu-let-7d      MIMAT0000383   26010
+   Gene.Symbol Transcript.ID mySymbol
+1          ICK     NM_016513      ICK
+2         PEG3  NM_001146187     PEG3
+3      C8orf86     NM_207412  C8orf86
+4      SLC12A9     NM_020246  SLC12A9
+5         PEG3  NM_001146186     PEG3
+6        THBS1     NM_003246    THBS1
+7         ABI3     NM_016428     ABI3
+8         YAP1     NM_006106     YAP1
+9        RNF39     NM_025236    RNF39
+10     SPATS2L  NM_001100424  SPATS2L
+> table (duplicated (combi))  #OK no dup
+
+  FALSE 
+8843237 
+> 
+> 
+> ##' miRNA to gene
+> ##' ============================================================================
+> combi.g <- combi[,c("Species.ID", "MiRBase.Accession", "mySymbol")]
+> dup <- duplicated (combi.g)
+> table (dup)
+dup
+  FALSE    TRUE 
+5171420 3671817 
+> combi.g <- combi.g[!dup,]
+> combi.g[1:3,]
+  Species.ID MiRBase.Accession mySymbol
+1      10090      MIMAT0000383      ICK
+2      10090      MIMAT0000383     PEG3
+3      10090      MIMAT0000383  C8orf86
+> 
+> table (duplicated (combi.g[,c("MiRBase.Accession", "mySymbol")]))  ##OK no duplicated: the ACCESSION id implies the species.
+
+  FALSE 
+5171420 
+> 
+> combi.g <- combi.g[,c("mySymbol", "MiRBase.Accession")]
+> dim (combi.g)
+[1] 5171420       2
+> table (duplicated (combi.g))
+
+  FALSE 
+5171420 
+>        
+> length (unique (combi.g[,c("MiRBase.Accession")]))
+[1] 2318
+> 
+> 
+> ##' list format
+> system.time (acc2geneTS <- annotMat2list (combi.g))
+   user  system elapsed 
+120.004   0.973 121.422 
+> 
+> table (sapply (acc2geneTS, function (x) sum (duplicated (x))))  #OK no duplicates
+
+   0 
+2318 
+> 
+> lapply (acc2geneTS[1:3], head)
+$MIMAT0000062
+[1] "ZNF322"   "RTCA"     "RFESD"    "CDV3"     "GRB10"    "TMEM255A"
+
+$MIMAT0000063
+[1] "ZNF322"   "RTCA"     "RFESD"    "CDV3"     "GRB10"    "TMEM255A"
+
+$MIMAT0000064
+[1] "ZNF322"   "RTCA"     "RFESD"    "CDV3"     "GRB10"    "TMEM255A"
+
+> lapply (acc2geneTS[100:103], head)
+$MIMAT0000236
+[1] "ILDR2"   "SCML1"   "CCNJ"    "MAGIX"   "PPP1R9A" "FMNL3"  
+
+$MIMAT0000237
+[1] "PPP3R2"  "CLIP3"   "TCF20"   "ELMO2"   "RHOBTB3" "XPR1"   
+
+$MIMAT0000238
+[1] "GTPBP8"  "UGT1A4"  "PLEKHG7" "BBIP1"   "CTNND1"  "AGPS"   
+
+$MIMAT0000239
+[1] "LMX1B"   "FNIP2"   "TNFSF13" "MCTS1"   "ITSN2"   "UBE2G1" 
+
+> 
+> 
+> 
+> ##' miRNA to transcript
+> ##' ============================================================================
+> combi.t <- combi[,c("Species.ID", "MiRBase.Accession", "Transcript.ID")]
+> dup <- duplicated (combi.t)
+> table (dup)
+dup
+  FALSE    TRUE 
+8843213      24 
+> combi.t <- combi.t[!dup,]
+> combi.t[1:3,]
+  Species.ID MiRBase.Accession Transcript.ID
+1      10090      MIMAT0000383     NM_016513
+2      10090      MIMAT0000383  NM_001146187
+3      10090      MIMAT0000383     NM_207412
+> 
+> table (duplicated (combi.t[,c("MiRBase.Accession", "Transcript.ID")]))  ##OK no duplicated: the ACCESSION id implies the species.
+
+  FALSE 
+8843213 
+> 
+> combi.t <- combi.t[,c("Transcript.ID", "MiRBase.Accession")]
+> dim (combi.t)
+[1] 8843213       2
+> 
+> length (unique (combi.t[,c("MiRBase.Accession")]))
+[1] 2318
+> 
+> 
+> ##' list format
+> system.time (acc2tranTS <- annotMat2list (combi.t))
+   user  system elapsed 
+270.712   1.800 273.469 
+> 
+> table (sapply (acc2tranTS, function (x) sum (duplicated (x))))  #OK no duplicates
+
+   0 
+2318 
+> 
+> lapply (acc2tranTS[1:3], head)
+$MIMAT0000062
+[1] "NM_001242798" "NM_003729"    "NM_001131065" "NM_017548"    "NM_001001555"
+[6] "NM_001104544"
+
+$MIMAT0000063
+[1] "NM_001242798" "NM_003729"    "NM_001131065" "NM_017548"    "NM_001001555"
+[6] "NM_001104544"
+
+$MIMAT0000064
+[1] "NM_001242798" "NM_003729"    "NM_001131065" "NM_017548"    "NM_001001555"
+[6] "NM_001104544"
+
+> lapply (acc2tranTS[100:103], head)
+$MIMAT0000236
+[1] "NM_199351"    "NM_001037540" "NM_001134375" "NM_001099681" "NM_001166162"
+[6] "NM_175736"   
+
+$MIMAT0000237
+[1] "NM_147180"    "NM_015526"    "NM_005650"    "NM_133171"    "NM_014899"   
+[6] "NM_001135669"
+
+$MIMAT0000238
+[1] "NM_014170"    "NM_007120"    "NM_001004330" "NM_001195304" "NM_001206889"
+[6] "NM_003659"   
+
+$MIMAT0000239
+[1] "NM_001174147" "NM_020840"    "NM_172087"    "NM_001137554" "NM_019595"   
+[6] "NM_003342"   
+
+> 
+> 
+> 
+> ##' SAVE
+> ##' ============================================================================
+> 
+> acc2geneTSc <- acc2geneTS
+> acc2tranTSc <- acc2tranTS
+> 
+> setwd (.job$dir$data)
+> dir ()
+ [1] "acc2geneMTB.RData"            "acc2geneTSc.RData"           
+ [3] "acc2geneTSp.RData"            "acc2tranTSc.RData"           
+ [5] "acc2tranTSp.RData"            "id2accession.RData"          
+ [7] "id2mir19.RData"               "id2mir20.RData"              
+ [9] "id2mirLast.RData"             "miRBaseDownloadDate.RData"   
+[11] "mirIDmat.RData"               "miRTarBaseDownloadDate.RData"
+[13] "targetScanDownloadDate.RData"
+> 
+> save (list = "acc2geneTSc", file = "acc2geneTSc.RData", compress = "xz")
+> save (list = "acc2tranTSc", file = "acc2tranTSc.RData", compress = "xz")
+> 
+> ###EXIT
+> warnings ()
+NULL
+> sessionInfo ()
+R version 3.0.2 (2013-09-25)
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] mdgsa_0.3.2          AnnotationDbi_1.22.6 Biobase_2.20.1      
+[4] BiocGenerics_0.6.0   RSQLite_0.11.4       DBI_0.2-7           
+
+loaded via a namespace (and not attached):
+[1] cluster_1.14.4  GO.db_2.9.0     grid_3.0.2      IRanges_1.18.4 
+[5] KEGG.db_2.9.1   lattice_0.20-24 Matrix_1.0-14   stats4_3.0.2   
+> q ("no")
+> proc.time()
+    user   system  elapsed 
+1357.336   21.321 1383.910 

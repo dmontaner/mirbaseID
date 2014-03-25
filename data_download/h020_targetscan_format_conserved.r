@@ -74,7 +74,13 @@ table (touse)
 table (lat = toupper (tgt[touse, "Gene.Symbol"]) %in% hgnc2latest,           ## OK no problem with lower case
        nam = toupper (tgt[touse, "Gene.Symbol"]) %in% names (hgnc2latest))
 
-system.time (tgt[,"mySymbol"] <- hgnc2latest[tgt[,"Gene.Symbol"]])
+
+tgt[,"mySymbol"] <- NA
+touse <- tgt[,"Gene.Symbol"] %in% hgnc2latest
+table (touse)
+tgt[touse, "mySymbol"] <- tgt[touse, "Gene.Symbol"]
+
+system.time (tgt[!touse, "mySymbol"] <- hgnc2latest[tgt[!touse, "Gene.Symbol"]])
 table (is.na (tgt[,"mySymbol"]))
 
 tgt <- tgt[!is.na (tgt[,"mySymbol"]),]
